@@ -27,9 +27,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -53,23 +54,23 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class driveTrainHardwareMap
 {
     /* Public OpMode members. */
-    public DcMotor right1  = null;
-    public DcMotor right2  = null;
-    public DcMotor left1   = null;
-    public DcMotor left2   = null;
+    public DcMotor right1;
+    public DcMotor right2;
+    public DcMotor left1;
+    public DcMotor left2;
 
 
     /* local OpMode members. */
-    driveTrainHardwareMap hwMap           =  null;
-
-
+    HardwareMap hwMap           =  null;
     /* Constructor */
-    public HardwarePushbot(){
+
+    double powerThreshold = 0.06;
+
+    public driveTrainHardwareMap(){
 
     }
-
     /* Initialize standard Hardware interfaces */
-    public void init(driveTrainHardwareMap ahwMap) {
+    public void init(HardwareMap ahwMap) {
         // Save reference to Hardware map
         hwMap = ahwMap;
 
@@ -78,17 +79,16 @@ public class driveTrainHardwareMap
         right2  = hwMap.get(DcMotor.class, "right2");
         left1  = hwMap.get(DcMotor.class, "left1");
         left2  = hwMap.get(DcMotor.class, "left2");
-
+        // Set the direction of the motors
+        right1.setDirection(DcMotor.Direction.FORWARD);
+        right2.setDirection(DcMotor.Direction.FORWARD);
+        left1.setDirection(DcMotor.Direction.FORWARD);
+        left2.setDirection(DcMotor.Direction.FORWARD);
         // Set all motors to zero power
        right1.setPower(0);
        right2.setPower(0);
        left1.setPower(0);
        left2.setPower(0);
-
-        // Set all motors to run without encoders.
-        // May want to use RUN_USING_ENCODERS if encoders are installed.
-
-
-        // Define and initialize ALL installed servos.
+       // fuction for movement@!
     }
 }
