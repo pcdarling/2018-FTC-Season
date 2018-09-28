@@ -1,34 +1,5 @@
-/* Copyright (c) 2017 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 package org.firstinspires.ftc.teamcode;
-
+//working controls
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -51,23 +22,24 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Servo channel:  Servo to open left claw:  "left_hand"
  * Servo channel:  Servo to open right claw: "right_hand"
  */
-public class driveTrainHardwareMap
-{
+public class driveTrainHardwareMap{
     /* Public OpMode members. */
     public DcMotor right1;
     public DcMotor right2;
     public DcMotor left1;
     public DcMotor left2;
-
+	public  power;
+	public  rewop;
 
     /* local OpMode members. */
-    HardwareMap hwMap           =  null;
+    HardwareMap hwMap   =  null;
     /* Constructor */
-
-    double powerThreshold = 0.06;
+	double power  = 0.06;
+	double rewop  = -0.06;
+   double powerThreshold = 0.06;
 
     public driveTrainHardwareMap(){
-
+	driveTrainHardwareMap robot = new driveTrainHardwareMap();
     }
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap ahwMap) {
@@ -90,5 +62,51 @@ public class driveTrainHardwareMap
        left1.setPower(0);
        left2.setPower(0);
        // fuction for movement@!
+	}
+	   public static void accelerate (gamepad1SpeedND = gamepad1.left_stick_y,gamepad1T = gamepad1.left_stick_x) {
+		 
+		 if(Math.abs(gamepad1T) > Math.abs(gamepad1SpeedND) ||
+        Math.abs(gamepad1T) > Math.abs(gamepad1SpeedND)){
+           // rotating counter clock wise
+            if(gamepad1T > power){
+                robot.right1.setPower(gamepad1T);
+                robot.right2.setPower(gamepad1T);
+                robot.left1.setPower(gamepad1T);
+                robot.left2.setPower(gamepad1T);
+            }
+            // rotating clock wise
+            else if(gamepad1T < rewop){
+                robot.right1.setPower(-gamepad1T);
+                robot.right2.setPower(-gamepad1T);
+                robot.left1.setPower(-gamepad1T);
+                robot.left2.setPower(-gamepad1T);
+            }
+            else{
+                robot.right1.setPower(0);
+                robot.right2.setPower(0);
+                robot.left1.setPower(0);
+                robot.left2.setPower(0);
+            }
+        }
+		 else{  
+				if (gamepad1SpeedND > power) {
+                robot.right1.setPower(gamepad1SpeedND);
+                robot.right2.setPower(gamepad1SpeedND);
+                robot.left1.setPower(gamepad1SpeedND);
+                robot.left2.setPower(gamepad1SpeedND);
+				} 
+				else if (gamepad1SpeedND < rewop) {
+                robot.right1.setPower(-gamepad1SpeedND);
+                robot.right2.setPower(-gamepad1SpeedND);
+                robot.left1.setPower(-gamepad1SpeedND);
+                robot.left2.setPower(-gamepad1SpeedND);
+				}
+				else {
+                robot.right1.setPower(0);
+                robot.right2.setPower(0);
+                robot.left1.setPower(0);
+                robot.left2.setPower(0);
+				}
+			}
+		}
     }
-}
