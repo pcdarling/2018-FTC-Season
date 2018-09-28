@@ -83,7 +83,8 @@ public class MrKrabsAndTheEvanTeleOp extends OpMode
         double RY = gamepad2.right_stick_y;
         boolean A = gamepad2.a;
 
-        if(A && RT > rtThresh){
+        //the bolow is an conditionall operator (it makes logic work)
+        if(A && (RT > rtThresh){
             robot.toggleClaw();
         }
     }
