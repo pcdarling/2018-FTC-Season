@@ -64,6 +64,8 @@ public class MrKrabsAndTheEvanHardware
     double krabsClosedPos = 0;
     boolean krabsOpen = false;
 
+    int theEvanMax = 1000;
+
     /* Constructor */
     public MrKrabsAndTheEvanHardware(){
 
@@ -96,6 +98,10 @@ public class MrKrabsAndTheEvanHardware
 
     }
 
+    public void moveTheEvan(double power) {
+
+
+    }
 
  }
 
