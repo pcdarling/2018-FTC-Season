@@ -22,9 +22,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  */
 public class driveTrainHardwareMapArrays {
     /* Public OpMode members. */
-    public DcMotor Motor[0];//right1
-    public DcMotor Motor[1];//right2
-    public DcMotor Motor[2];//left1   public DcMotor Motor[3]//left2
 	public  power;
 	public  rewop;
 
@@ -34,77 +31,66 @@ public class driveTrainHardwareMapArrays {
 	double power  = 0.06;
 	double rewop  = -0.06;
    double powerThreshold = 0.06;
-
-    public driveTrainHardwareMapArrays(){
-	driveTrainHardwareMapArrays robot = new driveTrainHardwareMapArrays();
-    }
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap ahwMap) {
-        // Save reference to Hardware map
+        /* Save reference to Hardware map */
         hwMap = ahwMap;
 
-        // Define and Initialize Motors
 		double[] Motors
-	    Motors = new double[4]
-		
-	   Motors[0] = hwMap.get(DcMotor.class, "right1");
-	   Motors[1] = hwMap.get(DcMotor.class, "right2");
-	   Motors[2] = hwMap.get(DcMotor.class, "left1");
-	   Motors[3] = hwMap.get(DcMotor.class, "left2");
-        // Set the direction of the motors
-        Motor[0].setDirection(DcMotor.Direction.FORWARD);
-        Motor[1].setDirection(DcMotor.Direction.FORWARD);
-        Motor[2].setDirection(DcMotor.Direction.FORWARD);
-        Motor[3].setDirection(DcMotor.Direction.FORWARD);
-        // Set all motors to zero power
-       Motor[0].setPower(0);
-       Motor[1].setPower(0);
-       Motor[2].setPower(0);
-       Motor[3].setPower(0);
-       // fuction for movement@!
-	}
-	   public static void accelerate (gamepad1SpeedND = gamepad1.left_stick_y,gamepad1T = gamepad1.left_stick_x) {
+	   Motors = new double[4]
+	   index = 0;
+	  while(index < 4) {
+	    Motors[0,1,2,3] = hwMap.get(DcMotor.class);
+		Motor[0,1,2,3,].setDirection(DcMotor.Direction.FORWARD0;
+		Motor[0,1,2,3].setPower(0);
+		index++;  
+		check index;
+	  
+	}  /* fuction for movement@! */
+	   public void movement (double gamepad1SpeedND,double gamepad1T) {
 		
 		 if(Math.abs(gamepad1T) > Math.abs(gamepad1SpeedND) ||
         Math.abs(gamepad1T) > Math.abs(gamepad1SpeedND)){
-           // rotating counter clock wise
+           /* rotating counter clock wise */
             if(gamepad1T > power){
-                robot.Motor[0].setPower(gamepad1T);
-                robot.Motor[1].setPower(gamepad1T);
-                robot.Motor[2].setPower(-gamepad1T);
-                robot.Motor[3].setPower(-gamepad1T);
+                Motor[0].setPower(gamepad1T);
+                Motor[1].setPower(gamepad1T);
+                Motor[2].setPower(-gamepad1T);
+                Motor[3].setPower(-gamepad1T);
             }
-            // rotating clock wise
+            /* rotating clock wise */
             else if(gamepad1T < rewop){
-                robot.Motor[0].setPower(-gamepad1T);
-                robot.Motor[1].setPower(-gamepad1T);
-                robot.Motor[2].setPower(gamepad1T);
-                robot.Motor[3].setPower(gamepad1T);
+                Motor[0].setPower(-gamepad1T);
+                Motor[1].setPower(-gamepad1T);
+                Motor[2].setPower(gamepad1T);
+                Motor[3].setPower(gamepad1T);
             }
             else{
-                robot.Motor[0].setPower(0);
-                robot.Motor[1].setPower(0);
-                robot.Motor[2].setPower(0);
-                robot.Motor[3].setPower(0);
+                Motor[0].setPower(0);
+                Motor[1].setPower(0);
+                Motor[2].setPower(0);
+                Motor[3].setPower(0);
             }
         } 
-                robot.Motor[0].setPower(gamepad1SpeedND);
-                robot.Motor[1].setPower(gamepad1SpeedND);
-                robot.Motor[2].setPower(gamepad1SpeedND);
-                robot.Motor[3].setPower(gamepad1SpeedND);
+			else{
+				if(){
+                Motor[0].setPower(gamepad1SpeedND);
+                Motor[1].setPower(gamepad1SpeedND);
+                Motor[2].setPower(gamepad1SpeedND);
+                Motor[3].setPower(gamepad1SpeedND);
 				} 
 				else if (gamepad1SpeedND < rewop) {
-                robot.Motor[0].setPower(-gamepad1SpeedND);
-                robot.Motor[1].setPower(-gamepad1SpeedND);
-                robot.Motor[2].setPower(-gamepad1SpeedND);
-                robot.Motor[3].setPower(-gamepad1SpeedND);
+                Motor[0].setPower(-gamepad1SpeedND);
+                Motor[1].setPower(-gamepad1SpeedND);
+                Motor[2].setPower(-gamepad1SpeedND);
+                Motor[3].setPower(-gamepad1SpeedND);
 				}
 				else {
-                robot.Motor[0].setPower(0);
-                robot.Motor[1].setPower(0);
-                robot.Motor[2].setPower(0);
-                robot.Motor[3].setPower(0);
+                Motor[0].setPower(0);
+                Motor[1].setPower(0);
+                Motor[2].setPower(0);
+                Motor[3].setPower(0);
 				}
 			}
 		}
-    }
+}
