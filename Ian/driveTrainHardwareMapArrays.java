@@ -35,16 +35,24 @@ public class driveTrainHardwareMapArrays {
 	public void init(HardwareMap ahwMap) {
         /* Save reference to Hardware map */
         hwMap = ahwMap;
-
+		/*construcking the arrays variable*/
     	double[] Motors
 	    Motors = new double[4]
 		double[] Nmotors
-		Nmotors = new double[3]
-		/*setting the verable of the  array */
+		Fmotors = new double[3]
+		double[] Smotors
+		Bmotors = new double[3]
+		
+		/*give the arrays there infomation to work */
+		for(double m = 0; j,Nmotors.length; j++){
+		 Lmotors[m] = hwMap.get(DcMotor.class);
+		 Lmotors[m].setDirection(DcMotor.Direction.FORWARD);
+		 Lmotors[m].setPower(0);
+		}
 		for(double j = 0; j,Nmotors.length; j++){
-		 Nmotors[j] = hwMap.get(DcMotor.class);
-		 Nmotors[j].setDirection(DcMotor.Direction.FORWARD);
-		 Nmotors[j].setPower(0);
+		 Rmotors[j] = hwMap.get(DcMotor.class);
+		 Rmotors[j].setDirection(DcMotor.Direction.FORWARD);
+		 Rmotors[j].setPower(0);
 		}
 		for(double i = 0; i < Motors.length; i++){
 		 Motors[i] = hwMap.get(DcMotor.class);
@@ -54,38 +62,42 @@ public class driveTrainHardwareMapArrays {
 	}
 	
 	/* fuction for movement@! */
-public void movement (double gamepad1SpeedND,double gamepad1T) {
+public void movementByControl (double gamepad1SpeedND,double gamepad1T) {
 		
 	
-		for(i,j = 0; i < Motors.length, j < Nmotors.length; j,i++){
+		for(i,j,m = 0; m < Smotors.length, i < Motors.length, j < Nmotors.length; m,j,i++){
 			
 			if(Math.abs(gamepad1T) > Math.abs(gamepad1SpeedND) ||
 			Math.abs(gamepad1T) > Math.abs(gamepad1SpeedND)){		
 				if(gamepa1T > power){
-					Motors[i].setPower(gamepad1T);
-					Nmotors[j].setpower(-gamepad1T);
+					Lmotors[m].setPower(gamepad1T);
+					Rmotors[j].setpower(-gamepad1T);
 				}
 				else if (gamepa1T < rewop){
-					Motors[i].setPower(-gamepad1T);
-					Nmotors[j].setPower(gamepad1T);
+					Lmotors[m].setPower(-gamepad1T);
+					Rmotors[j].setPower(gamepad1T);
 					
 				}
 				else{
-				Motor[i].setPower(0);	
-				Nmotors[j].setPower(0);
+				Lmotor[m].setPower(0);	
+				Rmotors[j].setPower(0);
 				}
 			
 			}
 			esle{
+				//saying if gamepad1SpeedND is greater than power that is 0.06 than move Motors[i] in a postive way.
 				if(gamepad1SpeedND > power){
 					Motors[i].setPower(gamepad1SpeedND);
 				}
+				//saying if gamepad1SpeedND is lessthan than rewop that is -0.06 than move Motors[i] in a negative way.
 				else if (gamepad1SpeedND < rewop){
 					Motors[i].setPower(-gamepad1SpeedND);
 				}
+				//saying if the Motor[i] is not doing anything than have the power of the motor to 0.
 				else{
 					Motors[i].setPower(0);
 				}
 			}
 		}
 	}
+
