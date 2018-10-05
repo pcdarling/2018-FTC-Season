@@ -50,24 +50,25 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Servo channel:  Servo to open left claw:  "left_hand"
  * Servo channel:  Servo to open right claw: "right_hand"
  */
-public class MrKrabsAndTheEvanHardware
+public class theEvanHardware
 {
     /* Public OpMode members. */
     public DcMotor theEvan = null;
-    public Servo mrKrabs = null;
+   // public Servo mrKrabs = null;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
 
     //these peramiters will have to be changed
-    double krabsOpenPos = 1;
-    double krabsClosedPos = 0;
-    boolean krabsOpen = false;
+    //double krabsOpenPos = 1;
+    //double krabsClosedPos = 0;
+    //boolean krabsOpen = false;
 
     int theEvanMax = 1000;
+    double powerThresh = 0.06;
 
     /* Constructor */
-    public MrKrabsAndTheEvanHardware(){
+    public theEvanHardware(){
 
     }
 
@@ -79,28 +80,36 @@ public class MrKrabsAndTheEvanHardware
         theEvan = hwMap.get(DcMotor.class, "the_evan");
         theEvan.setDirection(DcMotor.Direction.FORWARD);
         theEvan.setPower(0);
-        theEvan.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        theEvan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        mrKrabs = hwMap.get(Servo.class,"mrkrabs");
-        mrKrabs.setPosition(0.5);
-
-    }
-
-    public void toggleClaw() {
-       if (!krabsOpen){
-           mrKrabs.setPosition(krabsOpenPos);
-           krabsOpen = true;
-       }
-       else{
-           mrKrabs.setPosition(krabsClosedPos);
-           krabsOpen = false;
-       }
+//        mrKrabs = hwMap.get(Servo.class,"mrkrabs");
+//        mrKrabs.setPosition(0.5);
 
     }
+
+//    public void toggleClaw() {
+//       if (!krabsOpen){
+//           mrKrabs.setPosition(krabsOpenPos);
+//           krabsOpen = true;
+//       }
+//       else{
+//           mrKrabs.setPosition(krabsClosedPos);
+//           krabsOpen = false;
+//       }
+//
+//    }
 
     public void moveTheEvan(double power) {
-
-
+        int encoderCount = theEvan.getCurrentPosition();
+        if (power < powerThresh){
+        }
+        else if (power > 0 && encoderCount >= theEvanMax){
+        }
+        else if (power < 0 && encoderCount <= theEvanMax){
+        }
+        else {
+            theEvan.setPower(power);
+        }
     }
 
  }
