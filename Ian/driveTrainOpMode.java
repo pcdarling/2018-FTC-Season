@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="Basic: Iterative OpMode", group="Iterative Opmode")
 public class driveTrainOpMode extends OpMode {
-    driveTrainHardwareMap robot = new driveTrainHardwareMap();
-
+    driveTrainHardwareMapArrays robot = new driveTrainHardwareMapArrays();
+    boolean tankControls = false;
     @Override
     public void init(){
         robot.init(hardwareMap);
@@ -20,8 +20,17 @@ public class driveTrainOpMode extends OpMode {
    @Override
 	// it adds the movement fuction to the start of the robot planes (driver control). 
 	public void loop() {
-    robot.movement(gamepad1.left_stick_y,gamepad1.right_stick_x);
+       double Rx = gamepad1.right_stick_x;
+       double Ry = gamepad1.right_stick_y;
+       double Ly = gamepad1.left_stick_y;
+       double Lx = gamepad1.left_stick_x;
+        if(tankControls){
+            robot.tankcontrolsMovent(Ry,Ly);
 
+        }
+        else{
+            robot.movementByControl(Ly,Lx);
+        }
 	
     }
     
