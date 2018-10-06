@@ -22,7 +22,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class driveTrainHardwareMapArrays {
     /* Public OpMode members. */
     /*construcking the arrays variable*/
-    DcMotor[] motors;
+    DcMotor[] motors = new DcMotor[4];
 
     /* local OpMode members. */
     HardwareMap hwMap   =  null;
@@ -72,16 +72,17 @@ public class driveTrainHardwareMapArrays {
 
             if(Math.abs(gamepad1T) > Math.abs(gamepad1SpeedND)){
                 if(gamepad1T > power){
-                    motors[0].setPower(gamepad1T);
-                    motors[1].setPower(-gamepad1T);
-                    motors[2].setPower(gamepad1T);
-                    motors[3].setPower(-gamepad1T);
+                    motors[0].setPower(-gamepad1T);
+                    motors[1].setPower(gamepad1T);
+                    motors[2].setPower(-gamepad1T);
+                    motors[3].setPower(gamepad1T);
                 }
                 else if (gamepad1T < rewop){
                     motors[0].setPower(-gamepad1T);
                     motors[1].setPower(gamepad1T);
-                    motors[2].setPower(gamepad1T);
-                    motors[3].setPower(-gamepad1T);
+                    motors[2].setPower(-gamepad1T);
+                    motors[3].setPower(gamepad1T);
+
                 }
                 else{
                     motors[0].setPower(0);
@@ -94,8 +95,8 @@ public class driveTrainHardwareMapArrays {
             else{
                 //saying if gamepad1SpeedND is greater than power that is 0.06 than move Motors[i] in a postive way.
                 if(gamepad1SpeedND > power){
-                    motors[0].setPower(gamepad1SpeedND);
-                    motors[1].setPower(gamepad1SpeedND);
+                    motors[0].setPower(-gamepad1SpeedND);
+                    motors[1].setPower(-gamepad1SpeedND);
                     motors[2].setPower(gamepad1SpeedND);
                     motors[3].setPower(gamepad1SpeedND);
                 }
@@ -103,8 +104,8 @@ public class driveTrainHardwareMapArrays {
                 else if (gamepad1SpeedND < rewop){
                     motors[0].setPower(-gamepad1SpeedND);
                     motors[1].setPower(-gamepad1SpeedND);
-                    motors[2].setPower(-gamepad1SpeedND);
-                    motors[3].setPower(-gamepad1SpeedND);
+                    motors[2].setPower(gamepad1SpeedND);
+                    motors[3].setPower(gamepad1SpeedND);
                 }
                 //saying if the Motor[i] is not doing anything than have the power of the motor to 0.
                 else{
