@@ -1,1 +1,1 @@
-This folder contains the code for this season. Until we come up with a better organization scheme, everything will be plopped in here.
+This folder contains the code for this season. The only thing that is plopped into this folder is the current versions of working code. This includes the TeleOp files, Autonomous files, Hardware files, and any additional files needed for operation.
