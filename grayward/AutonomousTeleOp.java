@@ -7,15 +7,18 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @TeleOp(name="Iterative OpMode", group="Iterative Opmode")
 public class AutonomousTeleOp extends OpMode
 {
-	// Put your robot here
+    // Put your robot here
     CompetitionHardware robot = new CompetitionHardware();
 
     // Put your class variables here
     double distanceToSamples = 4; // inches
+    double distanceFromDepotToCrater = 18; // inches
+    double distanceToDepot = 14;
+    double distanceToAvoidMineral = 6;
 
     @Override
     public void init() {
-		robot.init(hardwareMap);
+        robot.init(hardwareMap);
     }
 
 
@@ -42,7 +45,7 @@ public class AutonomousTeleOp extends OpMode
 
         // Move until near samples
         robot.driveInInches(0.8, distanceToSamples);
-
+        //
         // Wait until location is determined
         while(robot.location < 0) {
             // Busy waiting
@@ -50,16 +53,19 @@ public class AutonomousTeleOp extends OpMode
 
         if (robot.location == 0) {
             // SW
+            allTheWays(0.8);
         }
         else if (robot.location == 1) {
             // SE
+            allTheWays(-0.8);
         }
         else if (robot.location == 2) {
             // NW
-            doNorthWest();
+            allTheWays(-0.8);
         }
         else if (robot.location == 3){
             // NE
+            allTheWays(0.8);
         }
 
         // placing team marker
@@ -73,7 +79,7 @@ public class AutonomousTeleOp extends OpMode
         robot.rotateInDegrees(-0.8,180);
 
         // Drive towards crater
-        robot.driveInInches(0.8,18);
+        robot.driveInInches(0.8,distanceFromDepotToCrater);
     }
 
     @Override
@@ -81,29 +87,19 @@ public class AutonomousTeleOp extends OpMode
 
     }
 
-    // Custom control functions down here
-    public void doNWOrSE() {
-        // START: North-West Control
-        // avoiding silver
-        robot.rotateInDegrees(-0.8, 90);
 
-        // still avoiding silver
-        robot.driveInInches(0.8, 6);
-
-        //turing to the depot
-        robot.rotateInDegrees(-0.8, 45);
-
-        // going to the depot
-        robot.driveInInches(0.8, 14);
-        // END: North-West Crater
-    }
-    public void doSWOrNE(){
+    public void allTheWays(double neededPower) {
         // turn to avoid silver
         robot.rotateInDegrees(-0.8, 90);
 
-        //
+        // driving away from sliver
+        robot.driveInInches(0.8, distanceToAvoidMineral);
 
+        //turing to the depot
+        robot.rotateInDegrees(neededPower, 45);
 
+        // going to the depot
+        robot.driveInInches(0.8, distanceToDepot);
 
     }
 }
