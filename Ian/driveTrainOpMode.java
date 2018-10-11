@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 public class driveTrainOpMode extends OpMode {
     driveTrainHardwareMapArrays robot = new driveTrainHardwareMapArrays();
     boolean tankControls = false;
+
     @Override
     public void init(){
         robot.init(hardwareMap);
@@ -23,13 +24,12 @@ public class driveTrainOpMode extends OpMode {
        double Rx = gamepad1.right_stick_x;
        double Ry = gamepad1.right_stick_y;
        double Ly = gamepad1.left_stick_y;
-       double Lx = gamepad1.left_stick_x;
-        if(tankControls){
+        if(tankControls) {
             robot.tankcontrolsMovent(Ry,Ly);
 
         }
-        else{
-            robot.movementByControl(Ly,Lx);
+        else {
+            robot.movementByControl(Rx,Ly);
         }
 	
     }
