@@ -15,9 +15,13 @@ public class GoldDetection extends OpMode {
     public void init(){
 
     }
+
+    @Override
     public void start(){
         robot.targetsRoverRuckus.activate();
     }
+
+    @Override
     public void loop(){
         targetVisible = false;
         for (VuforiaTrackable trackable: robot.allTrackables) {
@@ -27,6 +31,8 @@ public class GoldDetection extends OpMode {
             }
         }
     }
+
+    @Override
     public void stop(){
         robot.gameTrackables.deactivate();
     }
