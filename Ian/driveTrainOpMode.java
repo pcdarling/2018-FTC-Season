@@ -17,6 +17,7 @@ public class driveTrainOpMode extends OpMode {
     @Override
 	//to start the the robot
     public void start(){
+
     }
    @Override
 	// it adds the movement fuction to the start of the robot planes (driver control). 
