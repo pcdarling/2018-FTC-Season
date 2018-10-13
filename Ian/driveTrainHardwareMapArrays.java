@@ -29,9 +29,8 @@ public class driveTrainHardwareMapArrays {
     /* Constructor */
     double power  = 0.06;
     double rewop  = -0.06;
-    double powerThreshold = 0.06;
-
     /* Initialize standard Hardware interfaces */
+
     public void init(HardwareMap ahwMap) {
         /* Save reference to Hardware map */
         hwMap = ahwMap;
@@ -45,8 +44,6 @@ public class driveTrainHardwareMapArrays {
             motors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
     }
-
-    /* fuction for movement@! */
     public void tankcontrolsMovent (double gamepad1Ry ,double gamepad1Ly){
         if(gamepad1Ly > power || gamepad1Ly < power){
             motors[0].setPower(gamepad1Ly);
