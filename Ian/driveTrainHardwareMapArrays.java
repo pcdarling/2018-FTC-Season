@@ -1,24 +1,11 @@
 // arays versoin of the code.
 package org.firstinspires.ftc.teamcode;
+import com.qualcomm.hardware.lynx.commands.core.LynxGetMotorTargetPositionCommand;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-/* right tank control */
-/**
- * This is NOT an opmode.
- *
- * This class can be used to define all the specific hardware for a single robot.
- * In this case that robot is a Pushbot.
- * See PushbotTeleopTank_Iterative and others classes starting with "Pushbot" for usage examples.
- *
- * This hardware class assumes the following device names have been configured on the robot:
- * Note:  All names are lower case and some have single spaces between words.
- *
- * Motor channel:  Left  drive motor:        "left_drive"
- * Motor channel:  Right drive motor:        "right_drive"
- * Motor channel:  Manipulator drive motor:  "left_arm"
- * Servo channel:  Servo to open left claw:  "left_hand"
- * Servo channel:  Servo to open right claw: "right_hand"
- */
+
+import java.lang.annotation.Target;
+
 public class driveTrainHardwareMapArrays {
     /* Public OpMode members. */
     /*construcking the arrays variable*/
@@ -42,6 +29,34 @@ public class driveTrainHardwareMapArrays {
             motors[i].setDirection(DcMotor.Direction.FORWARD);
             motors[i].setPower(0);
             motors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+    }
+    public void inchesmovement (double power1,double inches ,boolean rotation){
+        //setting my target posittion.
+        motors[0].setTargetPosition(motors[0].getCurrentPosition());
+        motors[1].setTargetPosition(motors[1].getCurrentPosition());
+        motors[2].setTargetPosition(motors[2].getCurrentPosition());
+        motors[3].setTargetPosition(motors[3].getCurrentPosition());
+        //moving forward and backward
+        while () {
+            if() {
+                motors[0].setPower(-power1);
+                motors[1].setPower(-power1);
+                motors[2].setPower(-power1);
+                motors[3].setPower(-power1);
+            }
+            else if (){
+                motors[0].setPower(power1);
+                motors[1].setPower(power1);
+                motors[2].setPower(power1);
+                motors[3].setPower(power1);
+            }
+            else {
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+                motors[2].setPower(0);
+                motors[3].setPower(0);
+            }
         }
     }
     public void tankcontrolsMovent (double gamepad1Ry ,double gamepad1Ly){
@@ -115,3 +130,4 @@ public class driveTrainHardwareMapArrays {
             }
         }
     }
+
