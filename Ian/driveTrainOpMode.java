@@ -18,7 +18,7 @@ public class driveTrainOpMode extends OpMode {
     //to start the the robot
     public void start(){
         double xA = 0.06;
-        double xB =14.13 ;
+        double xB =14.13;
         boolean xC = false;
         robot.inchesmovement(xA,xB,xC);
 
@@ -34,7 +34,7 @@ public class driveTrainOpMode extends OpMode {
 
         }
         else {
-            robot.movementByControl(Rx,Ly);
+            robot.FPSControls(Rx,Ly);
         }
 
     }
