@@ -17,7 +17,6 @@ public class driveTrainHardwareMapArrays {
     double power  = 0.06;
     double rewop  = -0.06;
     /* Initialize standard Hardware interfaces */
-
     public void init(HardwareMap ahwMap) {
         /* Save reference to Hardware map */
         hwMap = ahwMap;
@@ -33,10 +32,10 @@ public class driveTrainHardwareMapArrays {
     }
     public void inchesmovement (double power1,double inches ,boolean rotation){
         //setting my target posittion.
-        motors[0].setTargetPosition(motors[0].getCurrentPosition());
-        motors[1].setTargetPosition(motors[1].getCurrentPosition());
-        motors[2].setTargetPosition(motors[2].getCurrentPosition());
-        motors[3].setTargetPosition(motors[3].getCurrentPosition());
+        motors[0].setTargetPosition(motors[0].getCurrentPosition()*a*b);
+        motors[1].setTargetPosition(motors[1].getCurrentPosition()*a*b);
+        motors[2].setTargetPosition(motors[2].getCurrentPosition()*a*b);
+        motors[3].setTargetPosition(motors[3].getCurrentPosition()*a*b);
         //moving forward and backward
         while () {
             if() {
@@ -79,8 +78,7 @@ public class driveTrainHardwareMapArrays {
         }
 
     }
-
-    public void movementByControl (double gamepad1SpeedND,double gamepad1T) {
+    public void FPSControls (double gamepad1SpeedND,double gamepad1T) {
 
             if(Math.abs(gamepad1T) > Math.abs(gamepad1SpeedND)){
                 if(gamepad1T > power){
@@ -129,5 +127,3 @@ public class driveTrainHardwareMapArrays {
                 }
             }
         }
-    }
-
