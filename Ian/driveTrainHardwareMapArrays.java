@@ -17,6 +17,7 @@ public class driveTrainHardwareMapArrays {
     double power  = 0.06;
     double rewop  = -0.06;
     /* Initialize standard Hardware interfaces */
+
     public void init(HardwareMap ahwMap) {
         /* Save reference to Hardware map */
         hwMap = ahwMap;
@@ -30,33 +31,17 @@ public class driveTrainHardwareMapArrays {
             motors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
     }
-    public void inchesmovement (double power1,double inches ,boolean rotation){
-        //setting my target posittion.
-        motors[0].setTargetPosition(motors[0].getCurrentPosition()*a*b);
-        motors[1].setTargetPosition(motors[1].getCurrentPosition()*a*b);
-        motors[2].setTargetPosition(motors[2].getCurrentPosition()*a*b);
-        motors[3].setTargetPosition(motors[3].getCurrentPosition()*a*b);
-        //moving forward and backward
-        while () {
-            if() {
-                motors[0].setPower(-power1);
-                motors[1].setPower(-power1);
-                motors[2].setPower(-power1);
-                motors[3].setPower(-power1);
-            }
-            else if (){
-                motors[0].setPower(power1);
-                motors[1].setPower(power1);
-                motors[2].setPower(power1);
-                motors[3].setPower(power1);
-            }
-            else {
-                motors[0].setPower(0);
-                motors[1].setPower(0);
-                motors[2].setPower(0);
-                motors[3].setPower(0);
-            }
-        }
+    public void inchesmovement (double power1,double inches ,boolean rotation) {
+        int enCountsPerRev =20;
+        double internalGear =40;
+        double ExternalGearRation = 80/100;
+        double trueCountaPerRev = (double)enCountsPerRev*internalGear*ExternalGearRation;
+        int start = 1;
+        
+            for (int i = 0; i < motors.length; i++) {
+                motors[i].setTargetPosition(motors[0].getCurrentPosition() * (int) 1.910 * 20);
+                motors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                motors[i].setPower(power1);
     }
     public void tankcontrolsMovent (double gamepad1Ry ,double gamepad1Ly){
         if(gamepad1Ly > power || gamepad1Ly < power){
@@ -78,7 +63,8 @@ public class driveTrainHardwareMapArrays {
         }
 
     }
-    public void FPSControls (double gamepad1SpeedND,double gamepad1T) {
+
+    public void movementByControl (double gamepad1SpeedND,double gamepad1T) {
 
             if(Math.abs(gamepad1T) > Math.abs(gamepad1SpeedND)){
                 if(gamepad1T > power){
@@ -127,3 +113,4 @@ public class driveTrainHardwareMapArrays {
                 }
             }
         }
+    }
