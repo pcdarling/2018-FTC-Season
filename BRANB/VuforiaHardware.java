@@ -13,9 +13,7 @@ import java.util.List;
 public class VuforiaHardware {
 
     public VuforiaLocalizer vuforia;
-    //experimental object detection
-    public VuforiaTrackables gameTrackables;
-    public VuforiaTrackable gameTemplate;
+
 
     //Rover ruckus VuMarks
     public VuforiaTrackables targetsRoverRuckus;
@@ -52,9 +50,6 @@ public class VuforiaHardware {
 
 
          // object detection init
-       gameTrackables = this.vuforia.loadTrackablesFromAsset("objects_OT");
-        gameTemplate = gameTrackables.get(0);
-        gameTemplate.setName("gameTemplate");
 
 
     }

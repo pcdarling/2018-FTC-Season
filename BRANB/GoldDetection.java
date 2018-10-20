@@ -13,7 +13,7 @@ public class GoldDetection extends OpMode {
 
     @Override
     public void init(){
-
+        robot.init(hardwareMap);
     }
 
     @Override
@@ -30,10 +30,10 @@ public class GoldDetection extends OpMode {
                 targetVisible = true;
             }
         }
+        telemetry.update();
     }
 
     @Override
     public void stop(){
-        robot.gameTrackables.deactivate();
     }
 }
