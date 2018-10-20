@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 public class driveTrainOpMode extends OpMode {
     driveTrainHardwareMapArrays robot = new driveTrainHardwareMapArrays();
     boolean tankControls = false;
+    int start = 0;
 
     @Override
     public void init(){
@@ -16,11 +17,13 @@ public class driveTrainOpMode extends OpMode {
 
     @Override
     //to start the the robot
-    public void start(){
+    public void start() {
         double xA = 0.06;
-        double xB =14.13;
+        double xB = 14.13;
         boolean xC = false;
-        robot.inchesmovement(xA,xB,xC);
+        while(start==1){
+            robot.inchesmovement(xA,xB,xC);
+        }
 
     }
     @Override
@@ -34,7 +37,7 @@ public class driveTrainOpMode extends OpMode {
 
         }
         else {
-            robot.FPSControls(Rx,Ly);
+            robot.movementByControl(Rx,Ly);
         }
 
     }
