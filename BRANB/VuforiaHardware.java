@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
 import java.util.ArrayList;
@@ -14,6 +15,8 @@ public class VuforiaHardware {
 
     public VuforiaLocalizer vuforia;
 
+    public boolean targetVisible;
+    int nTrackable = 0;
 
     //Rover ruckus VuMarks
     public VuforiaTrackables targetsRoverRuckus;
@@ -53,5 +56,27 @@ public class VuforiaHardware {
 
 
     }
-
+    public int determineLoc(){
+        targetVisible = false;
+        targetsRoverRuckus.activate();
+        while(!targetVisible){
+            for (VuforiaTrackable trackable: allTrackables) {
+                if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
+                    if (trackable.getName() == "Blue-Rover"){
+                        nTrackable = 1;
+                    }else if(trackable.getName() == "Red-Footprint"){
+                        nTrackable = 2;
+                    }else if(trackable.getName() == "Front-Craters"){
+                        nTrackable = 3;
+                    }else if(trackable.getName() == "Back-Space"){
+                        nTrackable = 4;
+                    }else{
+                        //do nothing
+                    }
+                    targetVisible = true;
+                }
+            }
+        }
+        return nTrackable;
+    }
 }

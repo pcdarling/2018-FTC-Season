@@ -23,12 +23,10 @@ public class GoldDetection extends OpMode {
 
     @Override
     public void loop(){
-        targetVisible = false;
-        for (VuforiaTrackable trackable: robot.allTrackables) {
-            if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
-                telemetry.addData("Visible Target", trackable.getName());
-                targetVisible = true;
-            }
+        robot.determineLoc();
+        telemetry.addData("Target Status: ", robot.targetVisible);
+        if (robot.targetVisible){
+            telemetry.addData("Which Target? ", robot.nTrackable);
         }
         telemetry.update();
     }
