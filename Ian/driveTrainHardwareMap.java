@@ -33,26 +33,26 @@ public class driveTrainHardwareMap{
     HardwareMap hwMap   =  null;
 
     /* Constructor */
-    //this is my vables that does not change */
+    //this is my vables that does not change
     double power = 0.06;
     double rewop = 0.06;
 
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap ahwMap) {
-        /* Save reference to Hardware map */
+        // Save reference to Hardware map
         hwMap = ahwMap;
 
-        /* Define and Initialize Motors */
+        // Define and Initialize Motors
         right1  = hwMap.get(DcMotor.class, "right1");
         right2  = hwMap.get(DcMotor.class, "right2");
         left1  = hwMap.get(DcMotor.class, "left1");
         left2  = hwMap.get(DcMotor.class, "left2");
-        /* Set the direction of the motors */
+        // Set the direction of the motors
         right1.setDirection(DcMotor.Direction.FORWARD);
         right2.setDirection(DcMotor.Direction.FORWARD);
         left1.setDirection(DcMotor.Direction.FORWARD);
         left2.setDirection(DcMotor.Direction.FORWARD);
-        /* Set all motors to zero power */
+        // Set all motors to zero power
        right1.setPower(0);
        right2.setPower(0);
        left1.setPower(0);
@@ -66,41 +66,37 @@ public class driveTrainHardwareMap{
 
         if (Math.abs(gamepad1T) > Math.abs(gamepad1SpeedND) ||
                 Math.abs(gamepad1T) > Math.abs(gamepad1SpeedND)) {
-            /* rotating counter clock wise */
+            // rotating counter clock wise
             if (gamepad1T > power) {
                 right1.setPower(gamepad1T);
                 right2.setPower(gamepad1T);
                 left1.setPower(gamepad1T);
                 left2.setPower(gamepad1T);
             }
-            /* rotating clock wise */
+            // rotating clock wise
             else if (gamepad1T < rewop) {
                 right1.setPower(-gamepad1T);
                 right2.setPower(-gamepad1T);
                 left1.setPower(-gamepad1T);
                 left2.setPower(-gamepad1T);
-            } 
-			else {
+            } else {
                 right1.setPower(0);
                 right2.setPower(0);
                 left1.setPower(0);
                 left2.setPower(0);
             }
-        } 
-		else {
+        } else {
             if (gamepad1SpeedND > power) {
                 right1.setPower(gamepad1SpeedND);
                 right2.setPower(gamepad1SpeedND);
                 left1.setPower(gamepad1SpeedND);
                 left2.setPower(gamepad1SpeedND);
-            } 
-			else if (gamepad1SpeedND < rewop) {
+            } else if (gamepad1SpeedND < rewop) {
                 right1.setPower(-gamepad1SpeedND);
                 right2.setPower(-gamepad1SpeedND);
                 left1.setPower(-gamepad1SpeedND);
                 left2.setPower(-gamepad1SpeedND);
-            }
-			else {
+            } else {
                 right1.setPower(0);
                 right2.setPower(0);
                 left1.setPower(0);
