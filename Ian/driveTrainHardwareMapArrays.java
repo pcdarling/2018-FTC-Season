@@ -139,4 +139,70 @@ public class driveTrainHardwareMapArrays {
     public void rotateInDegrees(double power,double degrees){
         driveInInches(power,degrees/360*robotCircumference,true);
     }
+
+    public void tankcontrolsMovent ( double gamepad1Ry, double gamepad1Ly){
+        if (gamepad1Ly > thresh || gamepad1Ly < thresh) {
+            motors[0].setPower(gamepad1Ly);
+            motors[2].setPower(gamepad1Ly);
+        } else {
+            motors[0].setPower(0);
+            motors[2].setPower(0);
+        }
+        if (gamepad1Ry > thresh || gamepad1Ry < thresh) {
+            motors[1].setPower(-gamepad1Ry);
+            motors[3].setPower(-gamepad1Ry);
+
+        } else {
+            motors[1].setPower(0);
+            motors[3].setPower(0);
+        }
+
+    }
+
+    public void FPSmovementByControl ( double gamepad1SpeedND, double gamepad1T){
+
+        if (Math.abs(gamepad1T) > Math.abs(gamepad1SpeedND)) {
+            if (gamepad1T > thresh) {
+                motors[0].setPower(-gamepad1T);
+                motors[1].setPower(gamepad1T);
+                motors[2].setPower(-gamepad1T);
+                motors[3].setPower(gamepad1T);
+            } else if (gamepad1T < -thresh) {
+                motors[0].setPower(-gamepad1T);
+                motors[1].setPower(gamepad1T);
+                motors[2].setPower(-gamepad1T);
+                motors[3].setPower(gamepad1T);
+
+            } else {
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+                motors[2].setPower(0);
+                motors[3].setPower(0);
+            }
+
+        } else {
+            //saying if gamepad1SpeedND is greater than power that is 0.06 than move Motors[i] in a postive way.
+            if (gamepad1SpeedND > thresh) {
+                motors[0].setPower(-gamepad1SpeedND);
+                motors[1].setPower(-gamepad1SpeedND);
+                motors[2].setPower(gamepad1SpeedND);
+                motors[3].setPower(gamepad1SpeedND);
+            }
+            //saying if gamepad1SpeedND is lessthan than rewop that is -0.06 than move Motors[i] in a negative way.
+            else if (gamepad1SpeedND < -thresh) {
+                motors[0].setPower(-gamepad1SpeedND);
+                motors[1].setPower(-gamepad1SpeedND);
+                motors[2].setPower(gamepad1SpeedND);
+                motors[3].setPower(gamepad1SpeedND);
+            }
+            //saying if the Motor[i] is not doing anything than have the power of the motor to 0.
+            else {
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+                motors[2].setPower(0);
+                motors[3].setPower(0);
+
+            }
+        }
+    }
 }
