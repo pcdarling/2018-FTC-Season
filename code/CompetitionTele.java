@@ -8,6 +8,8 @@ public class CompetitionTele extends OpMode {
     CompetitionHardware robot = new CompetitionHardware();
 
     double rtTresh = 0.06;
+    boolean tankControls = false;
+    int start = 0;
 
     @Override
     public void init(){
@@ -41,6 +43,15 @@ public class CompetitionTele extends OpMode {
 
     public void checkDriverControls(){
     // all that fun stuff yee TODO: put that fun stuff in Brandon.
+        double Rx = gamepad1.right_stick_x;
+        double Ry = gamepad1.right_stick_y;
+        double Ly = gamepad1.left_stick_y;
+        if (tankControls) {
+            robot.tankcontrolsMovent(Ry, Ly);
+
+        } else {
+            robot.FPSmovementByControl(Rx, Ly);
+        }
     }
 
     public void checkOperatorControls(){
