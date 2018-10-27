@@ -7,12 +7,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class CompetitionHardware
 {
-	// Put your Hardware objects here
-	
-	// Hardware Map IS Needed
+    // Put your Hardware objects here
+
+    // Hardware Map IS Needed
     HardwareMap hwMap           =  null;
-	
-	// Put class variables here
+
+    // Put class variables here
     int location = -1;
 
     // Don't touch the constructor
@@ -25,11 +25,11 @@ public class CompetitionHardware
         // Save reference to Hardware map
         hwMap = ahwMap;
 
-		// EX:
-		// motor = hwMap.get(DcMotor.class, "motor");
+        // EX:
+        // motor = hwMap.get(DcMotor.class, "motor");
     }
-	
-	// Put your functions down here
+
+    // Put your functions down here
     public void driveInInches(double power, double inches) {
 
     }
@@ -49,5 +49,4 @@ public class CompetitionHardware
     public void determineLocation() {
         // Does CV stuff and changes the "location" variable
     }
- }
-
+}
