@@ -35,6 +35,12 @@ public class CompetitionHardware {
     double robotWidth = 17.5;
     double robotDiameter = Math.sqrt(Math.pow(robotLength,2)+Math.pow(robotWidth,2));
     double robotCircumference = Math.PI*robotDiameter;
+
+    //Measured variables
+    double distanceToSamples = 4; // inches
+    double distanceFromDepotToCrater = 18; // inches
+    double distanceToDepot = 14;
+    double distanceToAvoidMineral = 6;
     //The Evan variables
     int theEvanMax = 1000;
     double krabsOpen = 1;
@@ -162,6 +168,21 @@ public class CompetitionHardware {
 
     }
 
+    public void allTheWays(double neededPower) {
+        // turn to avoid silver
+        rotateInDegrees(-0.8, 90);
+
+        // driving away from sliver
+        driveInInches(0.8, distanceToAvoidMineral);
+
+        //turing to the depot
+        rotateInDegrees(neededPower, 45);
+
+        // going to the depot
+        driveInInches(0.8, distanceToDepot);
+
+    }
+
     public void driveInInches (double power,double inches) {
         boolean busy = true;
         double percentOfWheel = inches / wheelCircumference;
@@ -274,6 +295,10 @@ public class CompetitionHardware {
 
             }
         }
+    }
+
+    public void moveTheEvan(double power){
+
     }
 
     public void toggleMarker(){
