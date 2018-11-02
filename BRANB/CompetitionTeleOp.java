@@ -17,9 +17,7 @@ public class CompetitionTeleOp extends OpMode {
     }
 
     @Override
-    public void start(){
-        robot.targetsRoverRuckus.activate();
-    }
+    public void start(){} // trying to use vuforia? put relicTrackables.activate(); in the start block first.
 
     @Override
     public void loop(){
