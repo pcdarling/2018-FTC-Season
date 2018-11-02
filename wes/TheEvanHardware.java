@@ -62,7 +62,12 @@ public class TheEvanHardware
             this.power = power;
         }
         public void run(){
+            try{
             moveTheEvan(this.power);
+            }
+            catch (Exception e){
+            // sumting wong
+            }
         }
         public void moveTheEvan(double power) {
             int encoderCount = theEvan.getCurrentPosition();
