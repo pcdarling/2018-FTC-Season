@@ -146,10 +146,10 @@ public class CompetitionHardware {
 
         if (Math.abs(gamepad1T) > Math.abs(gamepad1SpeedND)) {
             if (gamepad1T > thresh) {
-                motors[0].setPower(-gamepad1T);
-                motors[1].setPower(gamepad1T);
-                motors[2].setPower(-gamepad1T);
-                motors[3].setPower(gamepad1T);
+                motors[0].setPower(gamepad1T);// motors 0 and 2 were previously set to negative power, changed it based on how tank ctrls are
+                motors[1].setPower(-gamepad1T);// my bad if I have no idea what I'm doing rn -B
+                motors[2].setPower(gamepad1T);
+                motors[3].setPower(-gamepad1T);
             } else if (gamepad1T < -thresh) {
                 motors[0].setPower(-gamepad1T);
                 motors[1].setPower(gamepad1T);
@@ -171,7 +171,7 @@ public class CompetitionHardware {
                 motors[2].setPower(gamepad1SpeedND);
                 motors[3].setPower(gamepad1SpeedND);
             }
-            //saying if gamepad1SpeedND is lessthan than rewop that is -0.06 than move Motors[i] in a negative way.
+            //saying if gamepad1SpeedND is less than than rewop(?xD) that is -0.06 than move Motors[i] in a negative way.
             else if (gamepad1SpeedND < -thresh) {
                 motors[0].setPower(-gamepad1SpeedND);
                 motors[1].setPower(-gamepad1SpeedND);
