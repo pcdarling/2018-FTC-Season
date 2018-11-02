@@ -165,18 +165,18 @@ public class CompetitionHardware {
 
         } else {
             //saying if gamepad1SpeedND is greater than power that is 0.06 than move Motors[i] in a postive way.
-            if (gamepad1SpeedND > thresh) {
-                motors[0].setPower(-gamepad1SpeedND);
-                motors[1].setPower(-gamepad1SpeedND);
+            if (gamepad1SpeedND > thresh) { // this rotates based on main opMode
+                motors[0].setPower(gamepad1SpeedND); // motors 0 and 1 were previously "-gamepad1SpeedND"
+                motors[1].setPower(gamepad1SpeedND);
                 motors[2].setPower(gamepad1SpeedND);
                 motors[3].setPower(gamepad1SpeedND);
             }
             //saying if gamepad1SpeedND is less than than rewop(?xD) that is -0.06 than move Motors[i] in a negative way.
             else if (gamepad1SpeedND < -thresh) {
-                motors[0].setPower(-gamepad1SpeedND);
+                motors[0].setPower(-gamepad1SpeedND); // motors 2 and 3 were previously "gamepad1SpeedND"
                 motors[1].setPower(-gamepad1SpeedND);
-                motors[2].setPower(gamepad1SpeedND);
-                motors[3].setPower(gamepad1SpeedND);
+                motors[2].setPower(-gamepad1SpeedND);
+                motors[3].setPower(-gamepad1SpeedND);
             }
             //saying if the Motor[i] is not doing anything than have the power of the motor to 0.
             else {
