@@ -35,6 +35,12 @@ public class CompetitionHardware {
     double robotWidth = 17.5;
     double robotDiameter = Math.sqrt(Math.pow(robotLength,2)+Math.pow(robotWidth,2));
     double robotCircumference = Math.PI*robotDiameter;
+
+    //Measured variables
+    double distanceToSamples = 4; // inches
+    double distanceFromDepotToCrater = 18; // inches
+    double distanceToDepot = 14;
+    double distanceToAvoidMineral = 6;
     //The Evan variables
     int theEvanMax = 1000;
     double krabsOpen = 1;
@@ -62,6 +68,11 @@ public class CompetitionHardware {
     HardwareMap hwmap = null;
 
     tDetermineLoc locThread = new tDetermineLoc();
+    tClawToggle clawThread = new tClawToggle();
+    EvanThread eThread = new EvanThread();
+    DriveThread dt;
+
+
 
     public CompetitionHardware(){}//Constructor
 
@@ -75,9 +86,9 @@ public class CompetitionHardware {
             motors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
-        theEvan = hwmap.get(DcMotor.class, "the evan");
-        mrKrabs = hwmap.get(Servo.class, "mr krabs");
-        markerMover = hwmap.get(Servo.class, "marker");
+       // theEvan = hwmap.get(DcMotor.class, "the evan");
+       // mrKrabs = hwmap.get(Servo.class, "mr krabs");
+       // markerMover = hwmap.get(Servo.class, "marker");
 
         // vuforia targets
         int cameraMonitorViewId = hwmap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmap.appContext.getPackageName());
@@ -97,6 +108,7 @@ public class CompetitionHardware {
         backSpace.setName("Back-Space");
         allTrackables.addAll(targetsRoverRuckus);
 
+        /* TODO: do the thing again you will need this
         theEvan.setDirection(DcMotorSimple.Direction.FORWARD);
         theEvan.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         theEvan.setPower(0);
@@ -104,111 +116,12 @@ public class CompetitionHardware {
         markerMover.setPosition(storePos);
 
         mrKrabs.setPosition(0.5);
+        */
     }
 
-    public void driveInInches (double power,double inches,boolean rotation) {
-        boolean busy = true;
-        double percentOfWheel = inches / wheelCircumference;
-        int counts = (int)(percentOfWheel * encCountsPerRev);
-        int sign = 1;
-
-        if (rotation) {
-            for (int i = 0; i < motors.length; i++) {
-                if (power > 0) {
-                    sign = -1;
-                } else {
-                    sign = 1;
-                }
-                int currentPosition = motors[i].getCurrentPosition();
-                motors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                motors[i].setTargetPosition(currentPosition + sign * counts);
-                motors[i].setPower(power);
-            }
-        } else {
-            for (int i = 0; i < motors.length; i++) {
-                int even = i%2;
-                if(even == 0){
-                    if (power > 0) {
-                        sign = 1;
-                    } else {
-                        sign = -1;
-                    }
-                }
-                else {
-                    if (power > 0) {
-                        sign = -1;
-                    } else {
-                        sign = 1;
-                    }
-                }
-
-                int currentPosition = motors[i].getCurrentPosition();
-                motors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                motors[i].setTargetPosition(currentPosition + sign * counts);
-                motors[i].setPower(power);
-            }
-        }
-
-        while (busy) {
-            for (int i = 0; i < motors.length; i++) {
-                busy = busy && motors[i].isBusy();
-            }
-        }
-
-        for (int i = 0; i < motors.length; i++) {
-            motors[i].setPower(0);
-            motors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
-    }
-
-    public void driveInInches (double power,double inches) {
-        boolean busy = true;
-        double percentOfWheel = inches / wheelCircumference;
-        int counts = (int)(percentOfWheel * encCountsPerRev);
-        int sign = 1;
 
 
-        for (int i = 0; i < motors.length; i++) {
-            int even = i%2;
-            if(even == 0){
-                if (power > 0) {
-                    sign = 1;
-                } else {
-                    sign = -1;
-                }
-            }
-            else {
-                if (power > 0) {
-                    sign = -1;
-                } else {
-                    sign = 1;
-                }
-            }
 
-            int currentPosition = motors[i].getCurrentPosition();
-            motors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motors[i].setTargetPosition(currentPosition + sign * counts);
-            motors[i].setPower(power);
-        }
-
-
-        while (busy) {
-            for (int i = 0; i < motors.length; i++) {
-                busy = busy && motors[i].isBusy();
-            }
-        }
-
-        for (int i = 0; i < motors.length; i++) {
-            motors[i].setPower(0);
-            motors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
-    }
-
-    public void rotateInDegrees(double power,double degrees){
-        driveInInches(power,degrees/360*robotCircumference,true);
-    }
 
     public void tankcontrolsMovent ( double gamepad1Ry, double gamepad1Ly){
         if (gamepad1Ly > thresh || gamepad1Ly < thresh) {
@@ -276,6 +189,10 @@ public class CompetitionHardware {
         }
     }
 
+    public void moveTheEvan(double power){
+
+    } // Empty ATM; TODO: make the function plz.
+
     public void toggleMarker(){
         if (tm_isEjected){
             markerMover.setPosition(storePos);
@@ -293,6 +210,101 @@ public class CompetitionHardware {
         } else {
             mrKrabs.setPosition(krabsClose);
             k_isOpen = false;
+        }
+    }
+
+    public void createDriveThread(double power ,double inches){
+        dt = new DriveThread(power,inches);
+    }
+    public void createRotateThread(double power, double degress){
+        dt = new DriveThread(power,degress, true);
+    }
+
+    public class DriveThread extends Thread {
+        double power;
+        double inchesOrDegress;
+        int rotation = -1;
+
+        public DriveThread(double power, double inches) {
+            this.power = power;
+            this.inchesOrDegress = inches;
+            this.rotation = 0;
+        }
+
+        public DriveThread(double power, double degress, boolean rotation) {
+            this.inchesOrDegress = degress;
+            this.power = power;
+            this.rotation = 1;
+        }
+
+        public void run() {
+            if (this.rotation == 0) {
+                this.driveInInches(this.power, this.inchesOrDegress, false);
+            } else if (this.rotation == 1) {
+                this.rotateInDegrees(this.power, this.inchesOrDegress);
+
+
+            }
+        }
+
+        public void driveInInches (double power,double inches,boolean rotation) {
+            boolean busy = true;
+            double percentOfWheel = inches / wheelCircumference;
+            int counts = (int)(percentOfWheel * encCountsPerRev);
+            int sign = 1;
+
+            if (rotation) {
+                for (int i = 0; i < motors.length; i++) {
+                    if (power > 0) {
+                        sign = -1;
+                    } else {
+                        sign = 1;
+                    }
+                    int currentPosition = motors[i].getCurrentPosition();
+                    motors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    motors[i].setTargetPosition(currentPosition + sign * counts);
+                    motors[i].setPower(power);
+                }
+            } else {
+                for (int i = 0; i < motors.length; i++) {
+                    int even = i%2;
+                    if(even == 0){
+                        if (power > 0) {
+                            sign = 1;
+                        } else {
+                            sign = -1;
+                        }
+                    }
+                    else {
+                        if (power > 0) {
+                            sign = -1;
+                        } else {
+                            sign = 1;
+                        }
+                    }
+
+                    int currentPosition = motors[i].getCurrentPosition();
+                    motors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    motors[i].setTargetPosition(currentPosition + sign * counts);
+                    motors[i].setPower(power);
+                }
+            }
+
+            while (busy) {
+                for (int i = 0; i < motors.length; i++) {
+                    busy = busy && motors[i].isBusy();
+                }
+            }
+
+            for (int i = 0; i < motors.length; i++) {
+                motors[i].setPower(0);
+                motors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            }
+
+        }
+
+        public void rotateInDegrees(double power,double degrees){
+            driveInInches(power,degrees/360*robotCircumference,true);
         }
     }
 
@@ -337,6 +349,40 @@ public class CompetitionHardware {
             targetsRoverRuckus.deactivate();
 
             return location;
+        }
+    }
+
+    public class EvanThread extends Thread{
+        public void run(){
+            try{
+                moveTheEvan();
+            }
+            catch (Exception e){
+                // oof ow
+            }
+        }
+        public void moveTheEvan(){
+            // empty oof
+        }
+    }
+
+    public class tClawToggle extends Thread {
+        public void run(){
+            try{
+                toggleClaw();
+            }
+            catch (Exception e){
+                // oof ow that one hurted
+            }
+        }
+        public void toggleClaw(){
+            if (!k_isOpen) {
+                mrKrabs.setPosition(krabsOpen);
+                k_isOpen = true;
+            } else {
+                mrKrabs.setPosition(krabsClose);
+                k_isOpen = false;
+            }
         }
     }
 

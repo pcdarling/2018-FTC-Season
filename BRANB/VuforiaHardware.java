@@ -15,8 +15,8 @@ public class VuforiaHardware {
 
     public VuforiaLocalizer vuforia;
 
-    public boolean targetVisible;
-    int nTrackable = 0;
+    public boolean targetSeen = false;
+    public int location = -1;
 
     //Rover ruckus VuMarks
     public VuforiaTrackables targetsRoverRuckus;
@@ -27,6 +27,8 @@ public class VuforiaHardware {
     public List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
 
     HardwareMap hwmap = null;
+
+    tDetermineLoc locThread = new tDetermineLoc();
 
     public VuforiaHardware(){}// Constructor
 
@@ -56,27 +58,51 @@ public class VuforiaHardware {
 
 
     }
-    public int determineLoc(){
-        targetVisible = false;
-        targetsRoverRuckus.activate();
-        while(!targetVisible){
-            for (VuforiaTrackable trackable: allTrackables) {
-                if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
-                    if (trackable.getName() == "Blue-Rover"){
-                        nTrackable = 1;
-                    }else if(trackable.getName() == "Red-Footprint"){
-                        nTrackable = 2;
-                    }else if(trackable.getName() == "Front-Craters"){
-                        nTrackable = 3;
-                    }else if(trackable.getName() == "Back-Space"){
-                        nTrackable = 4;
-                    }else{
-                        //do nothing
-                    }
-                    targetVisible = true;
-                }
+    public class tDetermineLoc extends Thread {
+
+        public void run(){
+            try{
+                determineLoc();
+            }
+            catch(Exception e) {
+                location = -100;
             }
         }
-        return nTrackable;
+
+        public int determineLoc() {
+            if (targetSeen) {
+                return location;
+            }
+            targetsRoverRuckus.activate();
+            while (!targetSeen) {
+                for (VuforiaTrackable trackable : allTrackables) {
+                    if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
+                        if (trackable.getName() == "Blue-Rover") { // South West
+                            location = 0;
+                        }
+                        if (trackable.getName() == "Back-Space") { // South East
+                            location = 1;
+                        }
+                        if (trackable.getName() == "Front-Craters") { // North West
+                            location = 2;
+                        }
+                        if (trackable.getName() == "Red-Footprint") { // North East
+                            location = 3;
+                        }
+                        targetSeen = true;
+                    }
+                    if (targetSeen) {
+                        break;
+                    }
+                }
+            }
+            targetsRoverRuckus.deactivate();
+
+            return location;
+        }
+    }
+    public void resetLoc(){
+        targetSeen = false;
+        location = -1;
     }
 }

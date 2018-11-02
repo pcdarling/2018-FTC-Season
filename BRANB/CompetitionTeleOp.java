@@ -8,7 +8,7 @@ public class CompetitionTeleOp extends OpMode {
     CompetitionHardware robot = new CompetitionHardware();
 
     double rtTresh = 0.06;
-    boolean tankControls = false;
+    boolean tankControls = true;
     int start = 0;
 
     @Override
