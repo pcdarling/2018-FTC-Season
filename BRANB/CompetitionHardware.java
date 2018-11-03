@@ -16,19 +16,16 @@ import java.util.List;
 
 public class CompetitionHardware {
 
-    VuforiaLocalizer vuforia;
-
-    //drivetrain co
+    // Hardware Variables
     DcMotor[] motors = new DcMotor[4];
-    //The Evan Mechanism
+    public DcMotor liftM;
     public DcMotor theEvan;
     public Servo mrKrabs;
-    //Team Marker Mechanism
     public Servo markerMover;
 
-    //Drivetrain coolios variables
+    // Drivetrain coolios variables
     double thresh  = 0.06;
-    double encCountsPerRev = 20 * 20 * 84 / 100; // electrical * internal * external
+    double encCountsPerRev = 28 * 19.2 * 84 / 100; // electrical * internal * external
     double wheelRadius = 2.25;
     double wheelCircumference = 2 * Math.PI * wheelRadius;
     double robotLength = 14.5;
@@ -36,25 +33,29 @@ public class CompetitionHardware {
     double robotDiameter = Math.sqrt(Math.pow(robotLength,2)+Math.pow(robotWidth,2));
     double robotCircumference = Math.PI*robotDiameter;
 
-    //Measured variables
-    double distanceToSamples = 4; // inches
-    double distanceFromDepotToCrater = 18; // inches
-    double distanceToDepot = 14;
-    double distanceToAvoidMineral = 6;
-    //The Evan variables
+    // Measured variables
+    double distanceToSamples = 26.5; // inches
+    double distanceFromDepotToCrater = 93; // inches
+    double distanceToDepot = 59;
+    double distanceToAvoidMineral = 41;
+
+    // The Evan variables
     int theEvanMax = 1000;
     double krabsOpen = 1;
     double krabsClose = 0;
     boolean k_isOpen = false;
-    //Team Marker variables
+
+    // Team Marker variables
     double storePos;
     double ejectPos;
     boolean tm_isEjected = false;
-    //vuforia variables
+
+    // Vuforia Variables
     int location = -1;
     boolean targetSeen = false;
 
-    //Rover ruckus VuMarks
+    // Vuforia Objects
+    VuforiaLocalizer vuforia;
     public VuforiaTrackables targetsRoverRuckus;
     public VuforiaTrackable blueRover;
     public VuforiaTrackable redFootprint;
@@ -62,17 +63,17 @@ public class CompetitionHardware {
     public VuforiaTrackable backSpace;
     public List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
 
-
-
-
+    // Hardware Map Variables
     HardwareMap hwmap = null;
 
-    tDetermineLoc locThread = new tDetermineLoc();
-    tClawToggle clawThread = new tClawToggle();
-    EvanThread eThread = new EvanThread();
+    // Thread Objects
+    LocationThread lt;
     DriveThread dt;
-
-
+    /*
+    ClawThread ct;
+    EvanThread et;
+    MarkerThread mt;
+    */
 
     public CompetitionHardware(){}//Constructor
 
@@ -85,6 +86,10 @@ public class CompetitionHardware {
             motors[i].setPower(0);
             motors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
+        liftM = hwmap.get(DcMotor.class, "lift");
+        liftM.setPower(0);
+        liftM.setDirection(DcMotor.Direction.FORWARD);
+        liftM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
        // theEvan = hwmap.get(DcMotor.class, "the evan");
        // mrKrabs = hwmap.get(Servo.class, "mr krabs");
@@ -117,23 +122,40 @@ public class CompetitionHardware {
 
         mrKrabs.setPosition(0.5);
         */
+
+        // Initialize threads just in case
+        createLocationThread();
+        createDriveThread(0,0);
+        /*
+        createClawThread();
+        createMarkerThread();
+        createEvanThread(0);
+        */
     }
 
-
-
-
-
-    public void tankcontrolsMovent ( double gamepad1Ry, double gamepad1Ly){
+    public void tankcontrolsMovent ( double gamepad1Ry, double gamepad1Ly, boolean turbo){
         if (gamepad1Ly > thresh || gamepad1Ly < thresh) {
-            motors[0].setPower(gamepad1Ly);
-            motors[2].setPower(gamepad1Ly);
+            if (turbo) {
+                motors[0].setPower(gamepad1Ly);
+                motors[2].setPower(gamepad1Ly);
+            }
+            else{
+                motors[0].setPower(gamepad1Ly/2);
+                motors[2].setPower(gamepad1Ly/2);
+            }
         } else {
             motors[0].setPower(0);
             motors[2].setPower(0);
         }
         if (gamepad1Ry > thresh || gamepad1Ry < thresh) {
-            motors[1].setPower(-gamepad1Ry);
-            motors[3].setPower(-gamepad1Ry);
+            if (turbo) {
+                motors[1].setPower(-gamepad1Ry);
+                motors[3].setPower(-gamepad1Ry);
+            }
+            else{
+                motors[1].setPower(-gamepad1Ry/2);
+                motors[3].setPower(-gamepad1Ry/2);
+            }
 
         } else {
             motors[1].setPower(0);
@@ -142,19 +164,36 @@ public class CompetitionHardware {
 
     }
 
-    public void FPSmovementByControl ( double gamepad1SpeedND, double gamepad1T){
+    public void FPSmovementByControl ( double gamepad1SpeedND, double gamepad1T, boolean turbo){
 
         if (Math.abs(gamepad1T) > Math.abs(gamepad1SpeedND)) {
             if (gamepad1T > thresh) {
-                motors[0].setPower(-gamepad1T);
-                motors[1].setPower(gamepad1T);
-                motors[2].setPower(-gamepad1T);
-                motors[3].setPower(gamepad1T);
-            } else if (gamepad1T < -thresh) {
-                motors[0].setPower(-gamepad1T);
-                motors[1].setPower(gamepad1T);
-                motors[2].setPower(-gamepad1T);
-                motors[3].setPower(gamepad1T);
+                if(turbo) {
+                    motors[0].setPower(gamepad1T);
+                    motors[1].setPower(-gamepad1T);
+                    motors[2].setPower(gamepad1T);
+                    motors[3].setPower(-gamepad1T);
+                }
+                else {
+                    motors[0].setPower(gamepad1T/2);
+                    motors[1].setPower(-gamepad1T/2);
+                    motors[2].setPower(gamepad1T/2);
+                    motors[3].setPower(-gamepad1T/2);
+                }
+            }
+            else if (gamepad1T < -thresh) {
+                if(turbo) {
+                    motors[0].setPower(gamepad1T);
+                    motors[1].setPower(-gamepad1T);
+                    motors[2].setPower(gamepad1T);
+                    motors[3].setPower(-gamepad1T);
+                }
+                else {
+                    motors[0].setPower(gamepad1T/2);
+                    motors[1].setPower(-gamepad1T/2);
+                    motors[2].setPower(gamepad1T/2);
+                    motors[3].setPower(-gamepad1T/2);
+                }
 
             } else {
                 motors[0].setPower(0);
@@ -166,17 +205,33 @@ public class CompetitionHardware {
         } else {
             //saying if gamepad1SpeedND is greater than power that is 0.06 than move Motors[i] in a postive way.
             if (gamepad1SpeedND > thresh) {
-                motors[0].setPower(-gamepad1SpeedND);
-                motors[1].setPower(-gamepad1SpeedND);
-                motors[2].setPower(gamepad1SpeedND);
-                motors[3].setPower(gamepad1SpeedND);
+                if(turbo) {
+                    motors[0].setPower(-gamepad1SpeedND);
+                    motors[1].setPower(-gamepad1SpeedND);
+                    motors[2].setPower(-gamepad1SpeedND);
+                    motors[3].setPower(-gamepad1SpeedND);
+                }
+                else {
+                    motors[0].setPower(-gamepad1SpeedND/2);
+                    motors[1].setPower(-gamepad1SpeedND/2);
+                    motors[2].setPower(-gamepad1SpeedND/2);
+                    motors[3].setPower(-gamepad1SpeedND/2);
+                }
             }
             //saying if gamepad1SpeedND is lessthan than rewop that is -0.06 than move Motors[i] in a negative way.
             else if (gamepad1SpeedND < -thresh) {
-                motors[0].setPower(-gamepad1SpeedND);
-                motors[1].setPower(-gamepad1SpeedND);
-                motors[2].setPower(gamepad1SpeedND);
-                motors[3].setPower(gamepad1SpeedND);
+                if(turbo) {
+                    motors[0].setPower(-gamepad1SpeedND);
+                    motors[1].setPower(-gamepad1SpeedND);
+                    motors[2].setPower(-gamepad1SpeedND);
+                    motors[3].setPower(-gamepad1SpeedND);
+                }
+                else{
+                    motors[0].setPower(-gamepad1SpeedND/2);
+                    motors[1].setPower(-gamepad1SpeedND/2);
+                    motors[2].setPower(-gamepad1SpeedND/2);
+                    motors[3].setPower(-gamepad1SpeedND/2);
+                }
             }
             //saying if the Motor[i] is not doing anything than have the power of the motor to 0.
             else {
@@ -189,36 +244,30 @@ public class CompetitionHardware {
         }
     }
 
-    public void moveTheEvan(double power){
-
-    } // Empty ATM; TODO: make the function plz.
-
-    public void toggleMarker(){
-        if (tm_isEjected){
-            markerMover.setPosition(storePos);
-            tm_isEjected = false;
-        }
-        else{
-            markerMover.setPosition(ejectPos);
-        }
-    }
-
-    public void toggleClaw() {
-        if (!k_isOpen) {
-            mrKrabs.setPosition(krabsOpen);
-            k_isOpen = true;
-        } else {
-            mrKrabs.setPosition(krabsClose);
-            k_isOpen = false;
-        }
-    }
-
     public void createDriveThread(double power ,double inches){
         dt = new DriveThread(power,inches);
     }
-    public void createRotateThread(double power, double degress){
-        dt = new DriveThread(power,degress, true);
+    public void createRotateThread(double power, double degrees){
+        dt = new DriveThread(power,degrees,true);
     }
+    public void createLocationThread() {
+        lt = new LocationThread();
+    }
+
+    /*
+    public void createClawThread() {
+        ct = new ClawThread();
+    }
+    public void createMarkerThread() {
+        mt = new MarkerThread();
+    }
+    */
+    /*
+    public void createEvanThread(double power) {
+       EvanThread et = new EvanThread(power);
+       et.start();
+    }
+    */
 
     public class DriveThread extends Thread {
         double power;
@@ -249,8 +298,8 @@ public class CompetitionHardware {
 
         public void driveInInches (double power,double inches,boolean rotation) {
             boolean busy = true;
-            double percentOfWheel = inches / wheelCircumference;
-            int counts = (int)(percentOfWheel * encCountsPerRev);
+            double rev = inches / wheelCircumference;
+            int counts = (int)(rev * encCountsPerRev);
             int sign = 1;
 
             if (rotation) {
@@ -263,30 +312,29 @@ public class CompetitionHardware {
                     int currentPosition = motors[i].getCurrentPosition();
                     motors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     motors[i].setTargetPosition(currentPosition + sign * counts);
-                    motors[i].setPower(power);
+                    motors[i].setPower(Math.abs(power)*sign);
                 }
             } else {
                 for (int i = 0; i < motors.length; i++) {
                     int even = i%2;
-                    if(even == 0){
+                    if (even == 0){
                         if (power > 0) {
-                            sign = 1;
-                        } else {
                             sign = -1;
+                        } else {
+                            sign = 1;
                         }
                     }
                     else {
                         if (power > 0) {
-                            sign = -1;
-                        } else {
                             sign = 1;
+                        } else {
+                            sign = -1;
                         }
                     }
-
                     int currentPosition = motors[i].getCurrentPosition();
                     motors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     motors[i].setTargetPosition(currentPosition + sign * counts);
-                    motors[i].setPower(power);
+                    motors[i].setPower(sign*Math.abs(power));
                 }
             }
 
@@ -308,7 +356,11 @@ public class CompetitionHardware {
         }
     }
 
-    public class tDetermineLoc extends Thread {
+    public class LocationThread extends Thread {
+
+        public LocationThread() {
+
+        }
 
         public void run(){
             try{
@@ -352,28 +404,41 @@ public class CompetitionHardware {
         }
     }
 
+
     public class EvanThread extends Thread{
+        double power;
+        public EvanThread(double power){
+            this.power = power;
+        }
         public void run(){
             try{
-                moveTheEvan();
+                moveTheEvan(this.power);
             }
             catch (Exception e){
-                // oof ow
+                // sumting wong
             }
         }
-        public void moveTheEvan(){
-            // empty oof
+        public void moveTheEvan(double power) {
+            int encoderCount = theEvan.getCurrentPosition();
+            if (power < thresh){
+            }
+            else if (power > 0 && encoderCount >= theEvanMax){
+            }
+            else if (power < 0 && encoderCount <= theEvanMax){
+            }
+            else {
+                theEvan.setPower(power);
+            }
         }
     }
 
-    public class tClawToggle extends Thread {
+    public class ClawThread extends Thread {
+        public ClawThread() {
+
+        }
+
         public void run(){
-            try{
-                toggleClaw();
-            }
-            catch (Exception e){
-                // oof ow that one hurted
-            }
+            toggleClaw();
         }
         public void toggleClaw(){
             if (!k_isOpen) {
@@ -385,6 +450,25 @@ public class CompetitionHardware {
             }
         }
     }
+
+    public class MarkerThread extends Thread {
+        public MarkerThread() {
+
+        }
+        public void run() {
+            toggleMarker();
+        }
+        public void toggleMarker(){
+            if (tm_isEjected){
+                markerMover.setPosition(storePos);
+                tm_isEjected = false;
+            }
+            else{
+                markerMover.setPosition(ejectPos);
+            }
+        }
+    }
+
 
     public void resetLoc(){
         targetSeen = false;
