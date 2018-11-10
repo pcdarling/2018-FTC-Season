@@ -3,13 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
-
 @TeleOp
 public class GoldDetection extends OpMode {
     VuforiaHardware robot = new VuforiaHardware();
-    boolean targetVisible;
+
 
     @Override
     public void init(){
@@ -23,15 +20,25 @@ public class GoldDetection extends OpMode {
 
     @Override
     public void loop(){
-        robot.determineLoc();
-        telemetry.addData("Target Status: ", robot.targetVisible);
-        if (robot.targetVisible){
-            telemetry.addData("Which Target? ", robot.nTrackable);
+        checkVuforiaControls();
+        if (!robot.targetSeen && !robot.locThread.isAlive()) {
+            robot.locThread.start();
+        }
+        telemetry.addData("Target Status: ", robot.targetSeen);
+        if (robot.targetSeen){
+            telemetry.addData("Which Target? ", robot.location);
         }
         telemetry.update();
     }
 
     @Override
     public void stop(){
+        robot.resetLoc();
+    }
+
+    public void checkVuforiaControls(){
+        if (gamepad1.a){
+            robot.resetLoc();
+        }
     }
 }
