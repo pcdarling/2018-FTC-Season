@@ -24,11 +24,11 @@ public class CompetitionAutoOp extends LinearOpMode{
         // arm and robot should be down by now
 
         // Wait until location is determined
-        /*robot.createLocationThread();
+        robot.createLocationThread();
         robot.lt.start();
         while(robot.location < 0) {
             // Busy waiting
-        }*/
+        }
 
         // Move until near samples
         robot.createDriveThread(0.2, robot.distanceToSamples);
@@ -37,28 +37,27 @@ public class CompetitionAutoOp extends LinearOpMode{
             // Busy waiting
         }
         runtime.reset();
-        while (runtime.seconds() < 1){
+        while (runtime.seconds() < 2){
             // allow time for things to stop
         }
 
         if (robot.location == 0) {
             // SW
-            allTheWays(0.2);
+            allTheWays(-0.2, -0.2);
         }
         else if (robot.location == 1) {
             // SE
-            allTheWays(-0.2);
+            allTheWays(-0.2, 0.2);
         }
         else if (robot.location == 2) {
             // NW
-            allTheWays(-0.2);
+            allTheWays(-0.2, 0.2);
         }
         else if (robot.location == 3){
             // NE
-            allTheWays(0.2);
+            allTheWays(-0.2, -0.2);
         }
 
-        allTheWays(.2);// what we use now bc phone not mounted correct yet
         // placing team marker
         //robot.toggleMarker();
 
@@ -66,7 +65,7 @@ public class CompetitionAutoOp extends LinearOpMode{
         //robot.toggleMarker();
 
     }
-    public void allTheWays(double neededPower) {
+    public void allTheWays(double rotatePower, double linearPower) {
         // turn to avoid silver
         robot.createRotateThread(-0.2, 90);
         robot.dt.start();
@@ -74,7 +73,7 @@ public class CompetitionAutoOp extends LinearOpMode{
             // busy waiting
         }
         startTimer();
-        while (runtime.seconds() < 1) {
+        while (runtime.seconds() < 2) {
             //idle time
         }
         // driving away from sliver
@@ -84,44 +83,49 @@ public class CompetitionAutoOp extends LinearOpMode{
 
          }
          startTimer();
-         while (runtime.seconds() < 1){
+         while (runtime.seconds() < 2){
              //idle time
          }
         //turing to the depot
-        robot.createRotateThread(neededPower, 45);
+        robot.createRotateThread(rotatePower, 45);
         robot.dt.start();
         while(robot.dt.isAlive()) {
 
         }
         startTimer();
-        while (runtime.seconds() < 1){
+        while (runtime.seconds() < 2){
             //idle time
         }
 
         // going to the depot
-        robot.createDriveThread(0.2, robot.distanceToDepot);
+        robot.createDriveThread(linearPower, robot.distanceToDepot);
         robot.dt.start();
         while(robot.dt.isAlive()) {
 
         }
         startTimer();
-        while (runtime.seconds() < 1){
+        while (runtime.seconds() < 2){
             // idle time
         }
 
-        // Turn towards crater
+        /*// Turn towards crater
         robot.createRotateThread(-0.2,180);
         robot.dt.start();
         while(robot.dt.isAlive()) {
 
-        }
+        }*/
         startTimer();
-        while (runtime.seconds() < 1){
+        while (runtime.seconds() < 2){
             //stop...
         }
         // Drive towards crater
-        robot.createDriveThread(0.2,robot.distanceFromDepotToCrater);
-        robot.dt.start();
+        if (linearPower > 0){
+            robot.createDriveThread(-0.2,robot.distanceFromDepotToCrater);
+            robot.dt.start();
+        }else{
+            robot.createDriveThread(0.2, robot.distanceFromDepotToCrater);
+        }
+
         while(robot.dt.isAlive()) {
             //hammer time!
         }
