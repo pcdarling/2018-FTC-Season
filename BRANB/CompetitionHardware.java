@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
@@ -23,11 +27,17 @@ public class CompetitionHardware {
     public Servo mrKrabs;
     public Servo markerMover;
 
+    //Gyro Variables
+    public BNO055IMU imu;
+    public Orientation angles = new Orientation();
+    public Acceleration gravity = new Acceleration();
+
     // Drivetrain coolios variables
     double thresh  = 0.06;
     double encCountsPerRev = 28 * 19.2 * 84 / 100; // electrical * internal * external
     double wheelRadius = 2.25;
     double wheelCircumference = 2 * Math.PI * wheelRadius;
+    double countsPerInch = encCountsPerRev / wheelCircumference;
     double robotLength = 14.5;
     double robotWidth = 17.5;
     double robotDiameter = Math.sqrt(Math.pow(robotLength,2)+Math.pow(robotWidth,2));
@@ -63,6 +73,8 @@ public class CompetitionHardware {
     public VuforiaTrackable backSpace;
     public List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
 
+    public ElapsedTime runtime = new ElapsedTime();
+
     // Hardware Map Variables
     HardwareMap hwmap = null;
 
@@ -75,6 +87,7 @@ public class CompetitionHardware {
     MarkerThread mt;
     */
 
+
     public CompetitionHardware(){}//Constructor
 
     public void init(HardwareMap ahwmap){
@@ -84,7 +97,7 @@ public class CompetitionHardware {
             motors[i] = hwmap.get(DcMotor.class, "motor" + i);
             motors[i].setDirection(DcMotor.Direction.FORWARD);
             motors[i].setPower(0);
-            motors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
         liftM = hwmap.get(DcMotor.class, "lift");
         liftM.setPower(0);
