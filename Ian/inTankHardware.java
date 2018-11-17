@@ -10,59 +10,59 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 //i might need 1 color senser and 1 servo
 
 public class inTankHardware {
-    DcMotor[] ITMotors = new DcMotor[2];
-    TouchSensor[] InTouchS = new TouchSensor[3];
-    ColorSensor[] InTColor = new ColorSensor[1];
-    Servo[] INTServo = new Servo[1];
-    DcMotor[] ITMotersTwo = new DcMotor[1];
+    DcMotor[] intakeMotor = new DcMotor[2];
+    TouchSensor[] intakeTouch = new TouchSensor[3];
+    ColorSensor[] intakeColor = new ColorSensor[1];
+    Servo[] intakeServo = new Servo[1];
+    DcMotor[] intakeMotor1 = new DcMotor[1];
     HardwareMap ITHwMap = null;
 
     public void init(HardwareMap ahwMap) {
         /* Save reference to Hardware map */
         ITHwMap = ahwMap;
 
-        for (int i = 0; i < ITMotors.length; i++) {
-            ITMotors[i] = ITHwMap.get(DcMotor.class, "ITMotor" + i);
-            ITMotors[i].setDirection(DcMotor.Direction.FORWARD);
-            ITMotors[i].setPower(0);
+        for (int i = 0; i < intakeMotor.length; i++) {
+            intakeMotor[i] = ITHwMap.get(DcMotor.class, "ITMotor" + i);
+            intakeMotor[i].setDirection(DcMotor.Direction.FORWARD);
+            intakeMotor[i].setPower(0);
         }
-        for (int i = 0; i < InTouchS.length; i++) {
-            InTouchS[i] = ITHwMap.get(TouchSensor.class, "InTTouch" + i);
+        for (int i = 0; i < intakeTouch.length; i++) {
+            intakeTouch[i] = ITHwMap.get(TouchSensor.class, "InTTouch" + i);
         }
         // If I need it!!!!!!
-        for (int i = 0; i < InTColor.length; i++) {
-            InTColor[i] = ITHwMap.get(ColorSensor.class, "InTColor" + i);
+        for (int i = 0; i < intakeColor.length; i++) {
+            intakeColor[i] = ITHwMap.get(ColorSensor.class, "InTColor" + i);
 
         }
-        for (int i = 0; i < INTServo.length; i++) {
-            INTServo[i] = ITHwMap.get(Servo.class, "InTServo");
+        for (int i = 0; i < intakeServo.length; i++) {
+            intakeServo[i] = ITHwMap.get(Servo.class, "InTServo");
 
         }
         for(int i =0 ; i < ITMotersTwo.length; i++){
-            ITMotersTwo[i] = ITHwMap.get(DcMotor.class, "ITMotor2" + i);
-            ITMotersTwo[i].setDirection(DcMotor.Direction.FORWARD);
-            ITMotersTwo[i].setPower(0);
-            ITMotersTwo[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            ITMotersTwo[i].getCurrentPosition();
+            intakeMotor1[i] = ITHwMap.get(DcMotor.class, "intake motor" + i);
+            intakeMotor1[i].setDirection(DcMotor.Direction.FORWARD);
+            intakeMotor[i].setPower(0);
+            intakeMotor[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            intakeMotor[i].getCurrentPosition();
         }
     }
 
-    public void inTankHeader(double power) {
-        ITMotors[0].setPower(power);
+    public void inTakeMoveHeader(double power) {
+        intakeMotor[0].setPower(power);
     }
 
     public void inTankArmLiftLower(double power,boolean x,boolean a) {
 //        // I want to lift and lower the arm
         if(x){
-            ITMotors[1].setPower(power);
+            intakeMotor[1].setPower(power);
             if (a){
-                ITMotors[1].setPower(-power);
+                intakeMotor[1].setPower(-power);
             }
-            if(InTouchS[0].isPressed()) {
-                ITMotors[1].setPower(0);
+            if(intakeTouch[0].isPressed()) {
+                intakeMotor[1].setPower(0);
             }
-            else if (InTouchS[1].isPressed()){
-                ITMotors[1].setPower(0);
+            else if (intakeTOuch[1].isPressed()){
+                intakeMotor[1].setPower(0);
             }
         }
 
@@ -70,9 +70,9 @@ public class inTankHardware {
 public void inTankArmRiseLower (double power,boolean y, boolean b) {
     //rase and lower arm
     if (y) {
-        ITMotersTwo[0].setPower(power);
+        intakeMotor1[0].setPower(power);
         if (b) {
-            ITMotersTwo[0].setPower(-power);
+            intakeMotor1[0].setPower(-power);
             }
         }
     }
