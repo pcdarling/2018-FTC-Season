@@ -24,8 +24,9 @@ public class GyroStraightener extends LinearOpMode {
 
     VuforiaLocalizer vuforia;
 
-    public CompetitionHardware robot = new CompetitionHardware();
-    //public MovingAvg gyroErrorAvg = new MovingAvg(30);
+    public CompetitionHardware robot = new CompetitionHardware(false);
+    public IMUHardware gyro = new IMUHardware();
+    public GyroAnalysis gyroErrorAvg = new GyroAnalysis(30, 0 );
     static final double P_DRIVE_COEFF_1 = 0.01;  // Larger is more responsive, but also less accurate
     static final double P_DRIVE_COEFF_2 = 0.25;  // Intenionally large so robot "wiggles" around the target setpoint while driving
     @Override

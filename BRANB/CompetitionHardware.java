@@ -43,9 +43,9 @@ public class CompetitionHardware {
     double robotDiameter = Math.sqrt(Math.pow(robotLength,2)+Math.pow(robotWidth,2));
     double robotCircumference = Math.PI*robotDiameter;
 
-    // Measured variables
-    double distanceToSamples = 26.5; // inches
-    double distanceFromDepotToCrater = 93; // inches
+    // Measured variables in inches
+    double distanceToSamples = 26.5;
+    double distanceFromDepotToCrater = 93;
     double distanceToDepot = 59;
     double distanceToAvoidMineral = 41;
 
@@ -63,6 +63,7 @@ public class CompetitionHardware {
     // Vuforia Variables
     int location = -1;
     boolean targetSeen = false;
+    boolean cameraStatus = false;
 
     // Vuforia Objects
     VuforiaLocalizer vuforia;
@@ -88,7 +89,9 @@ public class CompetitionHardware {
     */
 
 
-    public CompetitionHardware(){}//Constructor
+    public CompetitionHardware(boolean cameraStatus){
+        this.cameraStatus = cameraStatus;
+    }//Constructor
 
     public void init(HardwareMap ahwmap){
         hwmap = ahwmap;
@@ -103,29 +106,31 @@ public class CompetitionHardware {
         liftM.setPower(0);
         liftM.setDirection(DcMotor.Direction.FORWARD);
         liftM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        imu = hwmap.get(BNO055IMU.class, "imu");
 
        // theEvan = hwmap.get(DcMotor.class, "the evan");
        // mrKrabs = hwmap.get(Servo.class, "mr krabs");
        // markerMover = hwmap.get(Servo.class, "marker");
 
-        // vuforia targets
-        int cameraMonitorViewId = hwmap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        parameters.vuforiaLicenseKey = "AYOeonr/////AAABmSirnJnvQUnelw5JOBSA3YZQx9wGb22naoaPA/2nWtFxpJiRrDY3NzvoKMTH6zRjy4eYcbHgabgNIwD7OaOLfQM5ZlLV5rmsHwdUkUN1aC8m2nNPlESStk9Ud1pvewjIfQCx1uBqAnRrBQmGFvxnHa6LNbS+eGIVt2/dmTuwUK+WZ5Yn4e0BDO5YlcOiiGEujAmqO+3O1p8a1YM+QHA/Bk7sCnM1hx8pYDT7Qp93jemP3plVOEC3hsEki1xMMBOpp6yip/XR4zX8nFRAT0sZqI7/s50EcuUcXEbPy1Fdv6r0gJZXzsmYm8qA2SLKpinCAd5EvKs6qlaiEFfuFgBplAGW7f6Yg5C1mdjOImQxJhxC";//license key here
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        if (cameraStatus) {
+            // vuforia targets
+            int cameraMonitorViewId = hwmap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmap.appContext.getPackageName());
+            VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+            parameters.vuforiaLicenseKey = "AYOeonr/////AAABmSirnJnvQUnelw5JOBSA3YZQx9wGb22naoaPA/2nWtFxpJiRrDY3NzvoKMTH6zRjy4eYcbHgabgNIwD7OaOLfQM5ZlLV5rmsHwdUkUN1aC8m2nNPlESStk9Ud1pvewjIfQCx1uBqAnRrBQmGFvxnHa6LNbS+eGIVt2/dmTuwUK+WZ5Yn4e0BDO5YlcOiiGEujAmqO+3O1p8a1YM+QHA/Bk7sCnM1hx8pYDT7Qp93jemP3plVOEC3hsEki1xMMBOpp6yip/XR4zX8nFRAT0sZqI7/s50EcuUcXEbPy1Fdv6r0gJZXzsmYm8qA2SLKpinCAd5EvKs6qlaiEFfuFgBplAGW7f6Yg5C1mdjOImQxJhxC";//license key here
+            parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
 
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-        targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
-        blueRover = targetsRoverRuckus.get(0);
-        blueRover.setName("Blue-Rover");
-        redFootprint = targetsRoverRuckus.get(1);
-        redFootprint.setName("Red-Footprint");
-        frontCraters = targetsRoverRuckus.get(2);
-        frontCraters.setName("Front-Craters");
-        backSpace = targetsRoverRuckus.get(3);
-        backSpace.setName("Back-Space");
-        allTrackables.addAll(targetsRoverRuckus);
-
+            vuforia = ClassFactory.getInstance().createVuforia(parameters);
+            targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
+            blueRover = targetsRoverRuckus.get(0);
+            blueRover.setName("Blue-Rover");
+            redFootprint = targetsRoverRuckus.get(1);
+            redFootprint.setName("Red-Footprint");
+            frontCraters = targetsRoverRuckus.get(2);
+            frontCraters.setName("Front-Craters");
+            backSpace = targetsRoverRuckus.get(3);
+            backSpace.setName("Back-Space");
+            allTrackables.addAll(targetsRoverRuckus);
+        }
         /* TODO: do the thing again you will need this
         theEvan.setDirection(DcMotorSimple.Direction.FORWARD);
         theEvan.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
