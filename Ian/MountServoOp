@@ -1,0 +1,33 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Iterative;
+
+@TeleOp(name = "mountServo", group = "testOps")
+public class MountServoOp extends OpMode{
+
+public MountServoHardware robot =  new MountServoHardware();
+
+ double mountCurPos = robot.mountServo.getCurrentPosition;
+
+public void init(){
+robot.init(hardwareMap);
+  }
+public void start(){
+
+  }
+public void loop(){
+checkOperatorControls();
+  }
+public void stop(){
+robot.mountServo.setPosition(0.5)
+  }
+public void checkOperatorControls(){
+if(gampad1.dpadleft){
+robot.mountServo.setPosition(mountCurPos-0.1)
+    }
+    if(gamepad1.dpadright){
+    robot.mountServo.setPosition(mountCurPos+0.1)
+    }
+  }
+}
