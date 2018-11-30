@@ -26,8 +26,6 @@ public class MarkerHardware {
         hwMap = ahwMap;
         markerMover = hwMap.get(Servo.class, "markerMover");
         markerMover.setPosition(storePos);
-
-
     }
 
     public void toggleMarker() {
