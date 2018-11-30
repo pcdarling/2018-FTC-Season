@@ -6,88 +6,100 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import java.lang.annotation.Target;
-
 public class inTakeHardware {
     DcMotor[] intakeMotor = new DcMotor[3];
     TouchSensor[] intakeTouch = new TouchSensor[2];
-    HardwareMap ITHwMap = null;
-    ColorSensor[] intakeColor = new ColorSensor[1];
-    Servo[] intakeServo = new Servo[1];
-    boolean topPressed = intakeTouch[0].isPressed();
-    boolean bottomPressed = intakeTouch[1].isPressed();
-    int counts;
-    int currentPosition;
+    HardwareMap hwMap = null;
+    ColorSensor intakeColor =  null;
+    Servo intakeServo = null;
+
+    IntakeThread it;
+
+    boolean liftUp = intakeTouch[0].isPressed();
+    boolean liftDown = intakeTouch[1].isPressed();
+    int liftCounts = 1000;
+    double doorClosed = 1;
+    double doorOpened = 0;
+    double suckPower = 0.8;
 
     public void init(HardwareMap ahwMap) {
         /* Save reference to Hardware map */
-        ITHwMap = ahwMap;
+        hwMap = ahwMap;
 
         for (int i = 0; i < intakeMotor.length; i++) {
-            int even = i%3;
-            if(even ==  2 || even == 0 ){
-                intakeMotor[i] = ITHwMap.get(DcMotor.class, "ITMotor" + i);
-                intakeMotor[i].setDirection(DcMotor.Direction.FORWARD);
-                intakeMotor[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                intakeMotor[i].setPower(0);
+            intakeMotor[i] = hwMap.get(DcMotor.class, "ITMotor" + i);
+            if(i == intakeMotor.length -1) {
+                intakeMotor[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             }
             else {
-                intakeMotor[i] = ITHwMap.get(DcMotor.class, "ITMotor" + i);
-                intakeMotor[i].setDirection(DcMotor.Direction.FORWARD);
-                intakeMotor[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                int currentPosition = intakeMotor[i].getCurrentPosition();
-                intakeMotor[i].setTargetPosition( counts + currentPosition);
-                intakeMotor[i].setPower(0);
+                intakeMotor[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
+            intakeMotor[i].setDirection(DcMotor.Direction.FORWARD);
+            intakeMotor[i].setPower(0);
         }
         for (int i = 0; i < intakeTouch.length; i++) {
-            intakeTouch[i] = ITHwMap.get(TouchSensor.class, "InTTouch" + i);
+            intakeTouch[i] = hwMap.get(TouchSensor.class, "ITTouch" + i);
         }
         // If I need it!!!!!!
         /*for (int i = 0; i < intakeColor.length; i++) {
-            intakeColor[i] = ITHwMap.get(ColorSensor.class, "InTColor" + i);
+            intakeColor[i] = hwMap.get(ColorSensor.class, "ITColor" + i);
 
         }
-        for (int i = 0; i < intakeServo.length; i++) {
-            intakeServo[i] = ITHwMap.get(Servo.class, "InTServo");
-
-        }*/
+        intakeServo = hwMap.get(Servo.class, "ITServo");
+        intakeServo.setPosition(doorClosed);*/
     }
-
-    public void intakeActivateHeader(double power) {
-        intakeMotor[0].setPower(power);
+    public void createIntakeThread(double power){
+        it = new IntakeThread(power);
     }
+    public class IntakeThread extends Thread {
+        double power;
 
-    public void inTakePivot(double power,boolean gameP2DpUp,boolean gameP2Dpdown) {
+        public IntakeThread(double power) {
+            this.power = power;
+
+        }
+
+        public void run() {
+            intakeExtend(this.power);
+        }
+
+        public void intakeExtend(double power) {
+            //raise and lower arm
+            int currentPosition = intakeMotor[1].getCurrentPosition();
+            if (power > 0) {
+                intakeMotor[1].setTargetPosition(currentPosition + liftCounts);
+            }
+            else {
+                intakeMotor[1].setTargetPosition(0);
+            }
+            intakeMotor[1].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            intakeMotor[1].setPower(power);
+            while(intakeMotor[1].isBusy()){
+                //busy waiting
+            }
+            intakeMotor[1].setPower(0);
+        }
+    }
+    public void suck(boolean on) {
+        if (on) {
+            intakeMotor[0].setPower(suckPower);
+        } else {
+            intakeMotor[0].setPower(0);
+        }
+    }
+    public void intakePivot(double power) {
+
         // I want to lift and lower the arm
-        if (gameP2Dpdown && bottomPressed){
+        if (power < 0 && liftDown){
            intakeMotor[2].setPower(0);
-       }
-
-       else if (gameP2Dpdown) {
-            intakeMotor[2].setPower(-power);
         }
-
-       if (gameP2DpUp && topPressed){
+        else if (power > 0 && liftUp){
             intakeMotor[2].setPower(0);
-       }
-
-       else if(gameP2DpUp) {
+        }
+        else {
             intakeMotor[2].setPower(power);
-       }
+        }
 
     }
-    public void inTankExtend(double power,double gameP2LSy) {
-        //rase and lower arm
-        int counts = 10; // going up, I do not know yet what the counts at max range is.
-        int inCounts =0; // going down
-        while (currentPosition < counts){
-            intakeMotor[1].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            intakeMotor[1].setPower(gameP2LSy);
-        }
-        while(currentPosition > inCounts){
-            intakeMotor[1].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            intakeMotor[1].setPower(-gameP2LSy);
-        }
-    }
+
 }
