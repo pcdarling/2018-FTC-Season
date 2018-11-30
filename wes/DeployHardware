@@ -1,0 +1,17 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+public class DeployHardware {
+    public DcMotor dMotor;
+
+    public HardwareMap hwMap;
+
+    public void init(HardwareMap aHWmap){
+       hwMap = aHWmap;
+       dMotor = hwMap.get(DcMotor.class,"dMotor");
+       dMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+       dMotor.setPower(0);
+    }
+}
