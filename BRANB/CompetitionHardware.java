@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -14,6 +15,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +35,8 @@ public class CompetitionHardware {
     public BNO055IMU imu;
     public Orientation angles = new Orientation();
     public Acceleration gravity = new Acceleration();
+    public double curHeading = angles.secondAngle;
+
 
     // Drivetrain coolios variables
     double thresh  = 0.06;
@@ -95,22 +101,35 @@ public class CompetitionHardware {
 
     public void init(HardwareMap ahwmap){
         hwmap = ahwmap;
+        BNO055IMU.Parameters imuParameters = new BNO055IMU.Parameters();
 
         for (int i = 0; i < motors.length; i++){
             motors[i] = hwmap.get(DcMotor.class, "motor" + i);
-            motors[i].setDirection(DcMotor.Direction.FORWARD);
             motors[i].setPower(0);
             motors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            if (i%2 == 0){ // even
+                motors[i].setDirection(DcMotor.Direction.REVERSE);
+            }
+            else{
+                motors[i].setDirection(DcMotor.Direction.FORWARD);
+            }
         }
         liftM = hwmap.get(DcMotor.class, "lift");
         liftM.setPower(0);
         liftM.setDirection(DcMotor.Direction.FORWARD);
         liftM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         imu = hwmap.get(BNO055IMU.class, "imu");
+        imu.initialize(imuParameters);
+        imuParameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        imuParameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        imuParameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        imuParameters.loggingEnabled      = true;
+        imuParameters.loggingTag          = "IMU";
+        imuParameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
 
-       // theEvan = hwmap.get(DcMotor.class, "the evan");
-       // mrKrabs = hwmap.get(Servo.class, "mr krabs");
-       // markerMover = hwmap.get(Servo.class, "marker");
+        // theEvan = hwmap.get(DcMotor.class, "the evan");
+        // mrKrabs = hwmap.get(Servo.class, "mr krabs");
+        // markerMover = hwmap.get(Servo.class, "marker");
 
         if (cameraStatus) {
             // vuforia targets
@@ -135,9 +154,7 @@ public class CompetitionHardware {
         theEvan.setDirection(DcMotorSimple.Direction.FORWARD);
         theEvan.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         theEvan.setPower(0);
-
         markerMover.setPosition(storePos);
-
         mrKrabs.setPosition(0.5);
         */
 
@@ -188,29 +205,29 @@ public class CompetitionHardware {
             if (gamepad1T > thresh) {
                 if(turbo) {
                     motors[0].setPower(gamepad1T);
-                    motors[1].setPower(-gamepad1T);
+                    motors[1].setPower(gamepad1T);
                     motors[2].setPower(gamepad1T);
-                    motors[3].setPower(-gamepad1T);
+                    motors[3].setPower(gamepad1T);
                 }
                 else {
                     motors[0].setPower(gamepad1T/2);
-                    motors[1].setPower(-gamepad1T/2);
+                    motors[1].setPower(gamepad1T/2);
                     motors[2].setPower(gamepad1T/2);
-                    motors[3].setPower(-gamepad1T/2);
+                    motors[3].setPower(gamepad1T/2);
                 }
             }
             else if (gamepad1T < -thresh) {
                 if(turbo) {
                     motors[0].setPower(gamepad1T);
-                    motors[1].setPower(-gamepad1T);
+                    motors[1].setPower(gamepad1T);
                     motors[2].setPower(gamepad1T);
-                    motors[3].setPower(-gamepad1T);
+                    motors[3].setPower(gamepad1T);
                 }
                 else {
                     motors[0].setPower(gamepad1T/2);
-                    motors[1].setPower(-gamepad1T/2);
+                    motors[1].setPower(gamepad1T/2);
                     motors[2].setPower(gamepad1T/2);
-                    motors[3].setPower(-gamepad1T/2);
+                    motors[3].setPower(gamepad1T/2);
                 }
 
             } else {
@@ -225,29 +242,29 @@ public class CompetitionHardware {
             if (gamepad1SpeedND > thresh) {
                 if(turbo) {
                     motors[0].setPower(-gamepad1SpeedND);
-                    motors[1].setPower(-gamepad1SpeedND);
+                    motors[1].setPower(gamepad1SpeedND);
                     motors[2].setPower(-gamepad1SpeedND);
-                    motors[3].setPower(-gamepad1SpeedND);
+                    motors[3].setPower(gamepad1SpeedND);
                 }
                 else {
                     motors[0].setPower(-gamepad1SpeedND/2);
-                    motors[1].setPower(-gamepad1SpeedND/2);
+                    motors[1].setPower(gamepad1SpeedND/2);
                     motors[2].setPower(-gamepad1SpeedND/2);
-                    motors[3].setPower(-gamepad1SpeedND/2);
+                    motors[3].setPower(gamepad1SpeedND/2);
                 }
             }
             //saying if gamepad1SpeedND is lessthan than rewop that is -0.06 than move Motors[i] in a negative way.
             else if (gamepad1SpeedND < -thresh) {
                 if(turbo) {
-                    motors[0].setPower(-gamepad1SpeedND);
+                    motors[0].setPower(gamepad1SpeedND);
                     motors[1].setPower(-gamepad1SpeedND);
-                    motors[2].setPower(-gamepad1SpeedND);
+                    motors[2].setPower(gamepad1SpeedND);
                     motors[3].setPower(-gamepad1SpeedND);
                 }
                 else{
-                    motors[0].setPower(-gamepad1SpeedND/2);
+                    motors[0].setPower(gamepad1SpeedND/2);
                     motors[1].setPower(-gamepad1SpeedND/2);
-                    motors[2].setPower(-gamepad1SpeedND/2);
+                    motors[2].setPower(gamepad1SpeedND/2);
                     motors[3].setPower(-gamepad1SpeedND/2);
                 }
             }
@@ -493,4 +510,3 @@ public class CompetitionHardware {
         location = -1;
     }
 }
-

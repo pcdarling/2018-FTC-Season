@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="Manual Mode", group="TeleOp")
 public class CompetitionTeleOp extends OpMode {
-    CompetitionHardware robot = new CompetitionHardware();
+    CompetitionHardware robot = new CompetitionHardware(false);
 
     double rtTresh = 0.03;
     boolean tankControls = false ;
@@ -18,7 +18,6 @@ public class CompetitionTeleOp extends OpMode {
 
     @Override
     public void start(){
-        robot.targetsRoverRuckus.activate();
     }
 
     @Override
@@ -55,8 +54,8 @@ public class CompetitionTeleOp extends OpMode {
                 tankControls = false;
             }
         }
-                if (tankControls) {
-                robot.tankcontrolsMovent(Ry, Ly, rb);
+        if (tankControls) {
+            robot.tankcontrolsMovent(Rx, Ly, rb);
 
         } else {
             robot.FPSmovementByControl(Rx, Ly, rb);
@@ -80,7 +79,6 @@ public class CompetitionTeleOp extends OpMode {
             robot.createMarkerThread();
             robot.mt.start();
         }
-
         if (gamepad2.a && (gamepad2.right_trigger > rtTresh) && !robot.ct.isAlive()) {
             robot.createClawThread();
             robot.ct.start();

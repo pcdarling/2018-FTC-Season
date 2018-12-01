@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -25,7 +26,6 @@ public class GyroStraightener extends LinearOpMode {
     VuforiaLocalizer vuforia;
 
     public CompetitionHardware robot = new CompetitionHardware(false);
-    public IMUHardware gyro = new IMUHardware();
     public GyroAnalysis gyroErrorAvg = new GyroAnalysis(30, 0 );
     static final double P_DRIVE_COEFF_1 = 0.01;  // Larger is more responsive, but also less accurate
     static final double P_DRIVE_COEFF_2 = 0.25;  // Intenionally large so robot "wiggles" around the target setpoint while driving
@@ -34,9 +34,20 @@ public class GyroStraightener extends LinearOpMode {
 
         composeTelemetry();
         telemetry.update();
+        robot.init(hardwareMap);
+        initDataAnalysis();
         waitForStart();
-        while (opModeIsActive()) {
-        }
+        telemetry.addData("angle.secondAngle: ", ":" + robot.angles.thirdAngle);
+        telemetry.addData("curHeading: ", ":", + robot.curHeading);
+        telemetry.update();
+        robot.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
+
+        // op mode starts here
+
+        encoderDrive( 0.5, 10, 30, true, robot.curHeading, false, true, 0);
+        encoderDrive(0.5, -20, 30, true, robot.curHeading, true, true,0 );
+        encoderDrive(0.5, 5, 30, true, robot.curHeading, true, true,0 );
+
     }
 
     public void encoderDrive(double speed,
@@ -82,13 +93,13 @@ public class GyroStraightener extends LinearOpMode {
                     if (headingChange > 0.0) {
                         // Assume 15.25 inch wheelbase
                         // Add extra distance to the wheel on outside of turn
-                        rightDistance += Math.signum(distance) * 2 * 3.1415 * 12 * headingChange / 360.0;
+                        rightDistance += Math.signum(distance) * 2 * 3.1415 * 6 * headingChange / 360.0;
                         RobotLog.i("DM10337 -- Turn adjusted R distance:" + rightDistance);
                     } else {
                         // Assume 15.25 inch wheelbase
                         // Add extra distance from the wheel on inside of turn
                         // headingChange is - so this is increasing the left distance
-                        leftDistance -= Math.signum(distance) * 2 * 3.1415 * 12 * headingChange / 360.0;
+                        leftDistance -= Math.signum(distance) * 2 * 3.1415 * 6 * headingChange / 360.0;
                         RobotLog.i("DM10337 -- Turn adjusted L distance:" + leftDistance);
                     }
                 }
@@ -186,7 +197,7 @@ public class GyroStraightener extends LinearOpMode {
 
                 // Allow time for other processes to run.
                 sleep(1);
-                ;
+
             }
 
 
@@ -197,7 +208,7 @@ public class GyroStraightener extends LinearOpMode {
                     "  rrtarget: " + newRFTarget + "  rractual:" + robot.motors[3].getCurrentPosition() +
                     "  heading:" + readGyro());
 
-          //  RobotLog.i("DM10337 - Gyro error average: " + gyroErrorAvg.average());
+            //  RobotLog.i("DM10337 - Gyro error average: " + gyroErrorAvg.average());
 
             // Stop all motion;
             robot.motors[0].setPower(0);
@@ -214,8 +225,14 @@ public class GyroStraightener extends LinearOpMode {
         }
     }
 
+    public void initDataAnalysis(){
+        for (int i = 0; i < gyroErrorAvg.size; i++){
+            gyroErrorAvg.add(getError(0));
+        }
+    }
+
     public void updateGyroErrorAvg(double error) {
-      //  gyroErrorAvg.add(Math.abs(error));
+        gyroErrorAvg.add(Math.abs(error));
     }
 
     public void gyroTurn(double speed, double angle, double coefficient) {
@@ -288,7 +305,6 @@ public class GyroStraightener extends LinearOpMode {
     public double getError(double targetAngle) {
 
         double robotError;
-
         // calculate error in -179 to +180 range  (
         robot.angles = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         robotError = targetAngle - robot.angles.thirdAngle;

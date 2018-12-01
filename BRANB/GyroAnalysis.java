@@ -6,12 +6,14 @@ public class GyroAnalysis {
     public int index;
     public double data[];
 
+
     public GyroAnalysis(int size, double initSample){ // construct with args
         this.size = size;
         data = new double[size];
         for (int i = 0; i < size; i++){
             data[i] = initSample;
         }
+
     }
     public void add(double x){
         total -= data[index];
@@ -22,5 +24,8 @@ public class GyroAnalysis {
 
     public double getError() {
         return total/size;
+    }
+    public void initialize(){
+
     }
 }
