@@ -18,6 +18,7 @@ public class CompetitionTeleOp extends OpMode {
 
     @Override
     public void start(){
+
     }
 
     @Override
@@ -54,8 +55,8 @@ public class CompetitionTeleOp extends OpMode {
                 tankControls = false;
             }
         }
-        if (tankControls) {
-            robot.tankcontrolsMovent(Rx, Ly, rb);
+                if (tankControls) {
+                robot.tankcontrolsMovent(Ry, Ly, rb);
 
         } else {
             robot.FPSmovementByControl(Rx, Ly, rb);
@@ -79,6 +80,7 @@ public class CompetitionTeleOp extends OpMode {
             robot.createMarkerThread();
             robot.mt.start();
         }
+
         if (gamepad2.a && (gamepad2.right_trigger > rtTresh) && !robot.ct.isAlive()) {
             robot.createClawThread();
             robot.ct.start();

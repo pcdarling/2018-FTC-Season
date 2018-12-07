@@ -35,12 +35,12 @@ public class CompetitionHardware {
     public BNO055IMU imu;
     public Orientation angles = new Orientation();
     public Acceleration gravity = new Acceleration();
-    public double curHeading = angles.secondAngle;
+    public double curHeading = angles.firstAngle;
 
 
     // Drivetrain coolios variables
     double thresh  = 0.06;
-    double encCountsPerRev = 28 * 19.2 * 84 / 100; // electrical * internal * external
+    double encCountsPerRev = 28 * 19.2 * 84 / 100; // electrical * internal * externaly
     double wheelRadius = 2.25;
     double wheelCircumference = 2 * Math.PI * wheelRadius;
     double countsPerInch = encCountsPerRev / wheelCircumference;
@@ -105,14 +105,9 @@ public class CompetitionHardware {
 
         for (int i = 0; i < motors.length; i++){
             motors[i] = hwmap.get(DcMotor.class, "motor" + i);
+            motors[i].setDirection(DcMotor.Direction.FORWARD);
             motors[i].setPower(0);
             motors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            if (i%2 == 0){ // even
-                motors[i].setDirection(DcMotor.Direction.REVERSE);
-            }
-            else{
-                motors[i].setDirection(DcMotor.Direction.FORWARD);
-            }
         }
         liftM = hwmap.get(DcMotor.class, "lift");
         liftM.setPower(0);
@@ -127,9 +122,9 @@ public class CompetitionHardware {
         imuParameters.loggingTag          = "IMU";
         imuParameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
 
-        // theEvan = hwmap.get(DcMotor.class, "the evan");
-        // mrKrabs = hwmap.get(Servo.class, "mr krabs");
-        // markerMover = hwmap.get(Servo.class, "marker");
+       // theEvan = hwmap.get(DcMotor.class, "the evan");
+       // mrKrabs = hwmap.get(Servo.class, "mr krabs");
+       // markerMover = hwmap.get(Servo.class, "marker");
 
         if (cameraStatus) {
             // vuforia targets
@@ -154,7 +149,9 @@ public class CompetitionHardware {
         theEvan.setDirection(DcMotorSimple.Direction.FORWARD);
         theEvan.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         theEvan.setPower(0);
+
         markerMover.setPosition(storePos);
+
         mrKrabs.setPosition(0.5);
         */
 
@@ -205,29 +202,29 @@ public class CompetitionHardware {
             if (gamepad1T > thresh) {
                 if(turbo) {
                     motors[0].setPower(gamepad1T);
-                    motors[1].setPower(gamepad1T);
+                    motors[1].setPower(-gamepad1T);
                     motors[2].setPower(gamepad1T);
-                    motors[3].setPower(gamepad1T);
+                    motors[3].setPower(-gamepad1T);
                 }
                 else {
                     motors[0].setPower(gamepad1T/2);
-                    motors[1].setPower(gamepad1T/2);
+                    motors[1].setPower(-gamepad1T/2);
                     motors[2].setPower(gamepad1T/2);
-                    motors[3].setPower(gamepad1T/2);
+                    motors[3].setPower(-gamepad1T/2);
                 }
             }
             else if (gamepad1T < -thresh) {
                 if(turbo) {
                     motors[0].setPower(gamepad1T);
-                    motors[1].setPower(gamepad1T);
+                    motors[1].setPower(-gamepad1T);
                     motors[2].setPower(gamepad1T);
-                    motors[3].setPower(gamepad1T);
+                    motors[3].setPower(-gamepad1T);
                 }
                 else {
                     motors[0].setPower(gamepad1T/2);
-                    motors[1].setPower(gamepad1T/2);
+                    motors[1].setPower(-gamepad1T/2);
                     motors[2].setPower(gamepad1T/2);
-                    motors[3].setPower(gamepad1T/2);
+                    motors[3].setPower(-gamepad1T/2);
                 }
 
             } else {
@@ -242,29 +239,29 @@ public class CompetitionHardware {
             if (gamepad1SpeedND > thresh) {
                 if(turbo) {
                     motors[0].setPower(-gamepad1SpeedND);
-                    motors[1].setPower(gamepad1SpeedND);
+                    motors[1].setPower(-gamepad1SpeedND);
                     motors[2].setPower(-gamepad1SpeedND);
-                    motors[3].setPower(gamepad1SpeedND);
+                    motors[3].setPower(-gamepad1SpeedND);
                 }
                 else {
                     motors[0].setPower(-gamepad1SpeedND/2);
-                    motors[1].setPower(gamepad1SpeedND/2);
+                    motors[1].setPower(-gamepad1SpeedND/2);
                     motors[2].setPower(-gamepad1SpeedND/2);
-                    motors[3].setPower(gamepad1SpeedND/2);
+                    motors[3].setPower(-gamepad1SpeedND/2);
                 }
             }
             //saying if gamepad1SpeedND is lessthan than rewop that is -0.06 than move Motors[i] in a negative way.
             else if (gamepad1SpeedND < -thresh) {
                 if(turbo) {
-                    motors[0].setPower(gamepad1SpeedND);
+                    motors[0].setPower(-gamepad1SpeedND);
                     motors[1].setPower(-gamepad1SpeedND);
-                    motors[2].setPower(gamepad1SpeedND);
+                    motors[2].setPower(-gamepad1SpeedND);
                     motors[3].setPower(-gamepad1SpeedND);
                 }
                 else{
-                    motors[0].setPower(gamepad1SpeedND/2);
+                    motors[0].setPower(-gamepad1SpeedND/2);
                     motors[1].setPower(-gamepad1SpeedND/2);
-                    motors[2].setPower(gamepad1SpeedND/2);
+                    motors[2].setPower(-gamepad1SpeedND/2);
                     motors[3].setPower(-gamepad1SpeedND/2);
                 }
             }
@@ -510,3 +507,4 @@ public class CompetitionHardware {
         location = -1;
     }
 }
+
