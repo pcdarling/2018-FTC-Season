@@ -42,8 +42,8 @@ public class intakeOpMode extends OpMode {
             robot.intakePivot(0);
         }
 
-        if (gameP2y) {
-            robot.intakeExtend(power);
+        if (gameP2y && !robot.it.isAlive()) {
+            robot.createIntakeThread(power);
         }
         telemetry.addData("Drawer pos: ", "%d", robot.intakeMotor[1].getCurrentPosition());
         telemetry.update();
