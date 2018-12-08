@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="Manual Mode", group="TeleOp")
 public class CompetitionTeleOp extends OpMode {
-    CompetitionHardware robot = new CompetitionHardware();
+    CompetitionHardware robot = new CompetitionHardware(false);
 
     double rtTresh = 0.03;
     boolean tankControls = false ;
@@ -18,7 +18,7 @@ public class CompetitionTeleOp extends OpMode {
 
     @Override
     public void start(){
-        robot.targetsRoverRuckus.activate();
+
     }
 
     @Override

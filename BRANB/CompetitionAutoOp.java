@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name = "CompetitionAutoOp", group = "CompetitionBot")
 public class CompetitionAutoOp extends LinearOpMode{
-    CompetitionHardware robot = new CompetitionHardware();
+    CompetitionHardware robot = new CompetitionHardware(true);
     private ElapsedTime runtime = new ElapsedTime();
 
     public void runOpMode(){
@@ -26,10 +26,11 @@ public class CompetitionAutoOp extends LinearOpMode{
         // Wait until location is determined
         robot.createLocationThread();
         robot.lt.start();
+        telemetry.addData("VuMark: ", "Searching for Mark");
         while(robot.location < 0) {
-            // Busy waiting
+         telemetry.update();
         }
-
+        telemetry.addData("VuMark: ", "VuMark found! " + robot.location);
         // Move until near samples
         robot.createDriveThread(0.2, robot.distanceToSamples);
         robot.dt.start();

@@ -29,7 +29,6 @@ public class GyroStraightener extends LinearOpMode {
     public GyroAnalysis gyroErrorAvg = new GyroAnalysis(30, 0 );
     static final double P_DRIVE_COEFF_1 = 0.01;  // Larger is more responsive, but also less accurate
     static final double P_DRIVE_COEFF_2 = 0.25;  // Intenionally large so robot "wiggles" around the target setpoint while driving
-    double degreesTraveled = 0;
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -46,7 +45,6 @@ public class GyroStraightener extends LinearOpMode {
         // op mode starts here
 
         encoderDrive( 0.5, 10, 30, true, robot.curHeading, true, true, 0);
-        gyroTurn(0.5, 90, 0.015);
 
     }
 
@@ -245,7 +243,7 @@ public class GyroStraightener extends LinearOpMode {
             // Allow time for other processes to run.
             // onHeading() does the work of turning us
             sleep(1);
-
+            ;
         }
 
         telemetry.addLine("DM10337- gyroTurn done   heading actual:" + readGyro());

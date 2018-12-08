@@ -1,52 +1,54 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public class CompetitionHardware
-{
-    // Put your Hardware objects here
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-    // Hardware Map IS Needed
-    HardwareMap hwMap           =  null;
+public class CompetitionHardware {
+    // Put any global robot variables here
+    boolean cameraStatus = false;
 
-    // Put class variables here
-    int location = -1;
+    // Put cool object declarations here
+    VuforiaHardware vuHW;
+    DriveTrainHw dtHW;
+    EvanHw EvenHW;
+    MarkerHardware MarkerHW;
 
-    // Don't touch the constructor
-    public CompetitionHardware(){
+    HardwareMap hwMap = null;
+
+    public CompetitionHardware(boolean cameraStatus) {
+        this.cameraStatus = cameraStatus;
 
     }
 
-    // Define your connections between your physical and virtual hardware objects
     public void init(HardwareMap ahwMap) {
-        // Save reference to Hardware map
         hwMap = ahwMap;
 
-        // EX:
-        // motor = hwMap.get(DcMotor.class, "motor");
-    }
 
-    // Put your functions down here
-    public void driveInInches(double power, double inches) {
+        // Put cool object instantiations here
+        vuHW = new VuforiaHardware(this.cameraStatus);
+        dtHW = new DriveTrainHw();
+        EvenHW = new EvanHw();
+        MarkerHW = new MarkerHardware();
 
-    }
 
-    public void rotateInDegrees(double power, double degrees) {
 
-    }
+        // Also, put cool object init function calls here
+        vuHW.init(hwMap);
+        dtHW.init(hwMap);
+        EvenHW.init(hwMap);
+        MarkerHW.init(hwMap);
 
-    public void moveTheEvan(double power) {
-
-    }
-
-    public void toggleMarker() {
-
-    }
-
-    public void determineLocation() {
-        // Does CV stuff and changes the "location" variable
     }
 }
