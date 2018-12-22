@@ -45,7 +45,7 @@ public class GyroStraightener extends LinearOpMode {
 
         // op mode starts here
 
-        encoderDrive( 0.5, 10, 30, true, robot.curHeading, true, true, 0);
+        encoderDrive( 0.5, 10, 30, true, robot.curHeading, false, true, 0);
         gyroTurn(0.5, 90, 0.015);
 
     }
