@@ -6,14 +6,16 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @TeleOp(name="Manual Mode", group="TeleOp")
 public class CompetitionTeleOp extends OpMode {
     CompetitionHardware robot = new CompetitionHardware(false);
+    intakeHardware intake = new intakeHardware();
 
     double rtTresh = 0.03;
-    boolean tankControls = false ;
+    boolean tankControls = true ;
     int start = 0;
 
     @Override
     public void init(){
         robot.init(hardwareMap);
+        intake.init(hardwareMap);
     }
 
     @Override
@@ -47,6 +49,7 @@ public class CompetitionTeleOp extends OpMode {
         double Ry = gamepad1.right_stick_y;
         double Ly = gamepad1.left_stick_y;
         boolean rb = gamepad1.right_bumper;
+
         if (gamepad1.dpad_left){
             if (!tankControls) {
                 tankControls = true;
@@ -64,6 +67,14 @@ public class CompetitionTeleOp extends OpMode {
     }
 
     public void checkOperatorControls(){
+        double power = 1;
+        boolean a = gamepad2.a;
+        boolean x = gamepad2.x;
+        boolean y = gamepad2.y;
+        boolean b = gamepad2.b;
+        boolean leftBumper = gamepad2.left_bumper;
+        boolean rBumper = gamepad2.right_bumper;
+
         if (gamepad1.right_trigger > rtTresh){
             robot.liftM.setPower(0.5);
         }
@@ -73,7 +84,9 @@ public class CompetitionTeleOp extends OpMode {
         else{
             robot.liftM.setPower(0);
         }
-
+        intake.intakeSuccc(power, rBumper,leftBumper);
+        intake.moveIntake(power, x, a);
+        intake.intakeArmRaiseLower(power, y, b);
 
         /*
         if (gamepad2.x && !robot.mt.isAlive()){
