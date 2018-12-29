@@ -27,6 +27,7 @@ public class CompetitionAutoOp extends LinearOpMode{
     public void runOpMode(){
         robot.init(hardwareMap);
         runtime.reset();
+        robot.imuInit();
 
         waitForStart();
         // OP MODE STARTS
@@ -329,7 +330,7 @@ public class CompetitionAutoOp extends LinearOpMode{
 
     public void initDataAnalysis(){
         for (int i = 0; i < gyroErrorAvg.size; i++){
-            gyroErrorAvg.add(robot.angles.firstAngle);
+            gyroErrorAvg.add(robot.getHeading());
         }
     }
 
@@ -410,7 +411,7 @@ public class CompetitionAutoOp extends LinearOpMode{
 
         // calculate error in -179 to +180 range  (
         robot.angles = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        robotError = targetAngle - robot.angles.firstAngle;
+        robotError = targetAngle - robot.getHeading();
         while (robotError > 180) robotError -= 360;
         while (robotError <= -180) robotError += 360;
         return robotError;
@@ -436,7 +437,7 @@ public class CompetitionAutoOp extends LinearOpMode{
     void zeroGyro() {
         double headingBias;
         robot.angles = robot.imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
-        headingBias = robot.angles.firstAngle;
+        headingBias = robot.getHeading();
     }
 
     void composeTelemetry() {
@@ -526,9 +527,9 @@ public class CompetitionAutoOp extends LinearOpMode{
     //  * @return      Current heading (Z axis)
     //  */
     double readGyro() {
-        double headingBias = robot.angles.firstAngle;
+        double headingBias = robot.getHeading();
         robot.angles = robot.imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
-        return robot.angles.firstAngle - headingBias;
+        return robot.getHeading() - headingBias;
     }
 }
 
