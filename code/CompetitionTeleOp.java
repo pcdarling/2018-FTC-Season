@@ -64,6 +64,7 @@ public class CompetitionTeleOp extends OpMode {
         } else {
             robot.FPSmovementByControl(Rx, Ly, rb);
         }
+
     }
 
     public void checkOperatorControls(){
