@@ -24,42 +24,66 @@ public class CompetitionAutoOp extends LinearOpMode{
     static final double P_DRIVE_COEFF_2 = 0.25;  // Intenionally large so robot "wiggles" around the target setpoint while driving
     double degreesTraveled = 0;
 
-    public void runOpMode(){
+    public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap);
         runtime.reset();
-        robot.imuInit();
 
         waitForStart();
-        // OP MODE STARTS
-        //robot.moveTheEvan(1);
-        //wait 2 seconds
-        //robot.driveInInches(0.8, 1);
-        //robot.moveTheEvan(-1);
-        //wait 2 seconds
-        // arm and robot should be down by now
+
+        // Lower Robot
+        robot.createEvanThread(1);
+        robot.et.start();
+        while (robot.et.isAlive()) {
+            // Busy Waiting
+        }
+
+        // Move away from hook
+        encoderDrive(0.2, 1, 30, true, robot.getHeading(), true, true, 0);
+        startTimer();
+        while (runtime.seconds() < 2) {
+            //idle time
+        }
+
+        // Put the Evan back up
+        robot.createEvanThread(-1);
+        robot.et.start();
+        while (robot.et.isAlive()) {
+            // Busy Waiting
+            // Could probably do without this busy waiting loop
+        }
+
+        // Go back to starting position
+        encoderDrive(-0.2, 1, 30, true, robot.getHeading(), true, true, 0);
+        startTimer();
+        while (runtime.seconds() < 2) {
+            //idle time
+        }
+
+        // Rotate to get ready to go forward
+        gyroTurn(0.2,-90,0.015);
+        startTimer();
+        while (runtime.seconds() < 2) {
+            //idle time
+        }
 
         // Wait until location is determined
         robot.createLocationThread();
         robot.lt.start();
-        telemetry.addData("VuMark: ", "Searching for Mark");
         while(robot.location < 0) {
-         telemetry.update();
-        }
-        telemetry.addData("VuMark: ", "VuMark found! " + robot.location);
-        // Move until near samples
-        robot.createDriveThread(0.2, robot.distanceToSamples);
-        robot.dt.start();
-        while(robot.dt.isAlive()) {
             // Busy waiting
         }
-        runtime.reset();
+
+        // Move until near samples
+        encoderDrive(0.2,robot.distanceToSamples,30, true, robot.getHeading(), true, true, 0);
+        startTimer();
         while (runtime.seconds() < 2){
             // allow time for things to stop
         }
 
         if (robot.location == 0) {
             // SW
-            allTheWays(-0.2, -0.2);
+            allTheWays(-0.2, -0.2); //  I did have a problem with handling InterruptedException here, I just took java's suggestion to
+            // "add exception to method signature"
         }
         else if (robot.location == 1) {
             // SE
@@ -77,81 +101,56 @@ public class CompetitionAutoOp extends LinearOpMode{
         // placing team marker
         //robot.toggleMarker();
 
-        // place the placer in it's place
-        //robot.toggleMarker();
-
     }
-    public void allTheWays(double rotatePower, double linearPower) {
+
+    public void allTheWays(double rotatePower, double linearPower) throws InterruptedException {
         // turn to avoid silver
-        robot.createRotateThread(-0.2, 90);
-        robot.dt.start();
-        while(robot.dt.isAlive()) {
-            // busy waiting
-        }
+        gyroTurn(-0.2, 90, 0.015);
         startTimer();
         while (runtime.seconds() < 2) {
             //idle time
         }
         // driving away from sliver
-         robot.createDriveThread(0.2, robot.distanceToAvoidMineral);
-         robot.dt.start();
-         while(robot.dt.isAlive()) {
-
-         }
-         startTimer();
-         while (runtime.seconds() < 2){
-             //idle time
-         }
-        //turing to the depot
-        robot.createRotateThread(rotatePower, 45);
-        robot.dt.start();
-        while(robot.dt.isAlive()) {
-
+        encoderDrive(0.2, robot.distanceToAvoidMineral, 30, true, robot.getHeading(), true, true, 0);
+        startTimer();
+        while (runtime.seconds() < 2){
+            //idle time
         }
+        //turing to the depot
+        gyroTurn(rotatePower, 45, 0.015);
         startTimer();
         while (runtime.seconds() < 2){
             //idle time
         }
 
         // going to the depot
-        robot.createDriveThread(linearPower, robot.distanceToDepot);
-        robot.dt.start();
-        while(robot.dt.isAlive()) {
-
-        }
+        encoderDrive(linearPower, robot.distanceToDepot, 30, true, robot.getHeading(), true, true, 0);
         startTimer();
         while (runtime.seconds() < 2){
             // idle time
         }
 
-        /*// Turn towards crater
-        robot.createRotateThread(-0.2,180);
-        robot.dt.start();
-        while(robot.dt.isAlive()) {
+        //here would be the code for dropping the team marker, but the team marker dropper doesn't exist physically yet, so
 
-        }*/
         startTimer();
         while (runtime.seconds() < 2){
             //stop...
         }
-        // Drive towards crater
+        // Drive towards crater (Hammer time!)
         if (linearPower > 0){
-            robot.createDriveThread(-0.2,robot.distanceFromDepotToCrater);
-            robot.dt.start();
+            encoderDrive(-0.2,robot.distanceFromDepotToCrater, 30, true, robot.getHeading(), true, true, 0);
         }else{
-            robot.createDriveThread(0.2, robot.distanceFromDepotToCrater);
+            encoderDrive(0.2, robot.distanceFromDepotToCrater, 30, true, robot.getHeading(), true, true, 0);
         }
 
-        while(robot.dt.isAlive()) {
-            //hammer time!
-        }
 
     }
+
     public void startTimer(){
         runtime.reset();
     }
 
-   // Ian attach the code from the GryoStraightener code 12/27/2018
+    // Ian attach the code from the GryoStraightener code 12/27/2018
 
     public void encoderDrive(double speed,
                              double distance,
@@ -532,4 +531,5 @@ public class CompetitionAutoOp extends LinearOpMode{
         return robot.getHeading() - headingBias;
     }
 }
+
 

@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 public class IntakeHardware {
-
     DcMotor[] ITMotors = new DcMotor[3];
     //TouchSensor InTouchS = null;
     DigitalChannel magSwitch = null;
@@ -20,7 +19,7 @@ public class IntakeHardware {
         ITHwMap = ahwMap;
 
         magSwitch = ITHwMap.get(DigitalChannel.class,"magSwitch");
-       // InTouchS = ITHwMap.get(TouchSensor.class, "InTTouch");
+        // InTouchS = ITHwMap.get(TouchSensor.class, "InTTouch");
 
         for (int i = 0; i < ITMotors.length; i++) {
             int even = i%2;
@@ -36,6 +35,7 @@ public class IntakeHardware {
                 ITMotors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 ITMotors[i].setPower(0);
             }
+            ITMotors[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
     }
@@ -78,7 +78,7 @@ public class IntakeHardware {
                 ITMotors[1].setPower(0);
             }
         }
-       else{
+        else{
             ITMotors[1].setPower(0);
         }
     }
@@ -93,4 +93,6 @@ public class IntakeHardware {
         }
         for (int i = 0; i < INTServo.length; i++) {
             INTServo[i] = ITHwMap.get(Servo.class, "InTServo");
-        }*/
+        }
+
+}*/

@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="Manual Mode", group="TeleOp")
-public class CompetitionTeleOp extends OpMode {
+public class CompetitionTeleOp extends OpMode{
     CompetitionHardware robot = new CompetitionHardware(false);
-    intakeHardware intake = new intakeHardware();
 
     double rtTresh = 0.03;
     boolean tankControls = true ;
@@ -15,7 +13,6 @@ public class CompetitionTeleOp extends OpMode {
     @Override
     public void init(){
         robot.init(hardwareMap);
-        intake.init(hardwareMap);
     }
 
     @Override
@@ -35,7 +32,7 @@ public class CompetitionTeleOp extends OpMode {
         if (robot.targetSeen){
             telemetry.addData("Which Target? ", robot.location);
         }*/
-        telemetry.addData("liftPos: ", "%d", robot.liftM.getCurrentPosition());
+        telemetry.addData("liftPos: ", "%d", robot.theEvan.getCurrentPosition());
         telemetry.update();
     }
 
@@ -58,8 +55,8 @@ public class CompetitionTeleOp extends OpMode {
                 tankControls = false;
             }
         }
-                if (tankControls) {
-                robot.tankcontrolsMovent(Ry, Ly, rb);
+        if (tankControls) {
+            robot.tankcontrolsMovent(Ry, Ly, rb);
 
         } else {
             robot.FPSmovementByControl(Rx, Ly, rb);
@@ -77,27 +74,22 @@ public class CompetitionTeleOp extends OpMode {
         boolean rBumper = gamepad2.right_bumper;
 
         if (gamepad1.right_trigger > rtTresh){
-            robot.liftM.setPower(0.5);
+            robot.theEvan.setPower(0.5);
         }
         else if (gamepad1.left_trigger > rtTresh){
-            robot.liftM.setPower(-0.5);
+            robot.theEvan.setPower(-0.5);
         }
         else{
-            robot.liftM.setPower(0);
+            robot.theEvan.setPower(0);
         }
-        intake.intakeSuccc(power, rBumper,leftBumper);
-        intake.moveIntake(power, x, a);
-        intake.intakeArmRaiseLower(power, y, b);
+        robot.intake.intakeSuccc(power, rBumper,leftBumper);
+        robot.intake.moveIntake(power, x, a);
+        robot.intake.intakeArmRaiseLower(power, y, b);
 
         /*
         if (gamepad2.x && !robot.mt.isAlive()){
             robot.createMarkerThread();
             robot.mt.start();
-        }
-
-        if (gamepad2.a && (gamepad2.right_trigger > rtTresh) && !robot.ct.isAlive()) {
-            robot.createClawThread();
-            robot.ct.start();
         }
         */
     }
