@@ -29,21 +29,12 @@ public class GyroStraightener extends LinearOpMode {
     public GyroAnalysis gyroErrorAvg = new GyroAnalysis(30, 0 );
     static final double P_DRIVE_COEFF_1 = 0.01;  // Larger is more responsive, but also less accurate
     static final double P_DRIVE_COEFF_2 = 0.25;  // Intenionally large so robot "wiggles" around the target setpoint while driving
-    double degreesTraveled = 0;
     @Override
     public void runOpMode() throws InterruptedException {
-        robot.init(hardwareMap);
 
-        // motor setup
-        for (int i = 0; i <robot.motors.length; i++) {
-            if (i % 2 == 0) { // even
-                robot.motors[i].setDirection(DcMotor.Direction.REVERSE);
-            } else {
-                robot.motors[i].setDirection(DcMotor.Direction.FORWARD);
-            }
-        }
         composeTelemetry();
         telemetry.update();
+        robot.init(hardwareMap);
         initDataAnalysis();
         waitForStart();
         telemetry.addData("angle.firstAngle: ", ":" + robot.angles.firstAngle);
@@ -53,8 +44,7 @@ public class GyroStraightener extends LinearOpMode {
 
         // op mode starts here
 
-        encoderDrive( 0.2, 10, 30, true, robot.curHeading, true, true, 0);
-        gyroTurn(0.2, 90, 0.015);
+        encoderDrive( 0.5, 10, 30, true, robot.curHeading, true, true, 0);
 
     }
 
@@ -216,7 +206,7 @@ public class GyroStraightener extends LinearOpMode {
                     "  rrtarget: " + newRFTarget + "  rractual:" + robot.motors[3].getCurrentPosition() +
                     "  heading:" + readGyro());
 
-            //  RobotLog.i("DM10337 - Gyro error average: " + gyroErrorAvg.average());
+          //  RobotLog.i("DM10337 - Gyro error average: " + gyroErrorAvg.average());
 
             // Stop all motion;
             robot.motors[0].setPower(0);
@@ -240,7 +230,7 @@ public class GyroStraightener extends LinearOpMode {
     }
 
     public void updateGyroErrorAvg(double error) {
-        //  gyroErrorAvg.add(Math.abs(error));
+      //  gyroErrorAvg.add(Math.abs(error));
     }
 
     public void gyroTurn(double speed, double angle, double coefficient) {
@@ -253,7 +243,7 @@ public class GyroStraightener extends LinearOpMode {
             // Allow time for other processes to run.
             // onHeading() does the work of turning us
             sleep(1);
-
+            ;
         }
 
         telemetry.addLine("DM10337- gyroTurn done   heading actual:" + readGyro());
@@ -316,7 +306,7 @@ public class GyroStraightener extends LinearOpMode {
 
         // calculate error in -179 to +180 range  (
         robot.angles = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        robotError = targetAngle - robot.angles.firstAngle;
+        robotError = targetAngle - robot.angles.thirdAngle;
         while (robotError > 180) robotError -= 360;
         while (robotError <= -180) robotError += 360;
         return robotError;
@@ -342,7 +332,7 @@ public class GyroStraightener extends LinearOpMode {
     void zeroGyro() {
         double headingBias;
         robot.angles = robot.imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
-        headingBias = robot.angles.firstAngle;
+        headingBias = robot.angles.thirdAngle;
     }
 
     void composeTelemetry() {
@@ -432,8 +422,8 @@ public class GyroStraightener extends LinearOpMode {
     //  * @return      Current heading (Z axis)
     //  */
     double readGyro() {
-        double headingBias = robot.angles.firstAngle;
+        double headingBias = robot.angles.thirdAngle;
         robot.angles = robot.imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
-        return robot.angles.firstAngle - headingBias;
+        return robot.angles.thirdAngle - headingBias;
     }
 }

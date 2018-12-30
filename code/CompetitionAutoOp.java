@@ -1,62 +1,157 @@
 package org.firstinspires.ftc.teamcode;
 
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
-import org.firstinspires.ftc.robotcore.external.navigation.*;
 
 import java.util.Locale;
 
-@Autonomous(name="Auto library Test Swerve", group="Linear Opmode")
-
-public class GyroStraightener extends LinearOpMode {
-
-    VuforiaLocalizer vuforia;
-
-    public CompetitionHardware robot = new CompetitionHardware(false);
+@Autonomous(name = "CompetitionAutoOp", group = "CompetitionBot")
+public class CompetitionAutoOp extends LinearOpMode{
+    CompetitionHardware robot = new CompetitionHardware(true);
     public GyroAnalysis gyroErrorAvg = new GyroAnalysis(30, 0 );
+    private ElapsedTime runtime = new ElapsedTime();
     static final double P_DRIVE_COEFF_1 = 0.01;  // Larger is more responsive, but also less accurate
     static final double P_DRIVE_COEFF_2 = 0.25;  // Intenionally large so robot "wiggles" around the target setpoint while driving
     double degreesTraveled = 0;
-    @Override
-    public void runOpMode() throws InterruptedException {
+
+    public void runOpMode(){
         robot.init(hardwareMap);
+        runtime.reset();
+        robot.imuInit();
 
-        // motor setup
-        for (int i = 0; i <robot.motors.length; i++) {
-            if (i % 2 == 0) { // even
-                robot.motors[i].setDirection(DcMotor.Direction.REVERSE);
-            } else {
-                robot.motors[i].setDirection(DcMotor.Direction.FORWARD);
-            }
-        }
-        composeTelemetry();
-        telemetry.update();
-        initDataAnalysis();
         waitForStart();
-        telemetry.addData("angle.firstAngle: ", ":" + robot.angles.firstAngle);
-        telemetry.addData("curHeading: ", ":", + robot.curHeading);
-        telemetry.update();
-        robot.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
+        // OP MODE STARTS
+        //robot.moveTheEvan(1);
+        //wait 2 seconds
+        //robot.driveInInches(0.8, 1);
+        //robot.moveTheEvan(-1);
+        //wait 2 seconds
+        // arm and robot should be down by now
 
-        // op mode starts here
+        // Wait until location is determined
+        robot.createLocationThread();
+        robot.lt.start();
+        telemetry.addData("VuMark: ", "Searching for Mark");
+        while(robot.location < 0) {
+         telemetry.update();
+        }
+        telemetry.addData("VuMark: ", "VuMark found! " + robot.location);
+        // Move until near samples
+        robot.createDriveThread(0.2, robot.distanceToSamples);
+        robot.dt.start();
+        while(robot.dt.isAlive()) {
+            // Busy waiting
+        }
+        runtime.reset();
+        while (runtime.seconds() < 2){
+            // allow time for things to stop
+        }
 
-        encoderDrive( 0.2, 10, 30, true, robot.curHeading, true, true, 0);
-        gyroTurn(0.2, 90, 0.015);
+        if (robot.location == 0) {
+            // SW
+            allTheWays(-0.2, -0.2);
+        }
+        else if (robot.location == 1) {
+            // SE
+            allTheWays(-0.2, 0.2);
+        }
+        else if (robot.location == 2) {
+            // NW
+            allTheWays(-0.2, 0.2);
+        }
+        else if (robot.location == 3){
+            // NE
+            allTheWays(-0.2, -0.2);
+        }
+
+        // placing team marker
+        //robot.toggleMarker();
+
+        // place the placer in it's place
+        //robot.toggleMarker();
 
     }
+    public void allTheWays(double rotatePower, double linearPower) {
+        // turn to avoid silver
+        robot.createRotateThread(-0.2, 90);
+        robot.dt.start();
+        while(robot.dt.isAlive()) {
+            // busy waiting
+        }
+        startTimer();
+        while (runtime.seconds() < 2) {
+            //idle time
+        }
+        // driving away from sliver
+         robot.createDriveThread(0.2, robot.distanceToAvoidMineral);
+         robot.dt.start();
+         while(robot.dt.isAlive()) {
+
+         }
+         startTimer();
+         while (runtime.seconds() < 2){
+             //idle time
+         }
+        //turing to the depot
+        robot.createRotateThread(rotatePower, 45);
+        robot.dt.start();
+        while(robot.dt.isAlive()) {
+
+        }
+        startTimer();
+        while (runtime.seconds() < 2){
+            //idle time
+        }
+
+        // going to the depot
+        robot.createDriveThread(linearPower, robot.distanceToDepot);
+        robot.dt.start();
+        while(robot.dt.isAlive()) {
+
+        }
+        startTimer();
+        while (runtime.seconds() < 2){
+            // idle time
+        }
+
+        /*// Turn towards crater
+        robot.createRotateThread(-0.2,180);
+        robot.dt.start();
+        while(robot.dt.isAlive()) {
+
+        }*/
+        startTimer();
+        while (runtime.seconds() < 2){
+            //stop...
+        }
+        // Drive towards crater
+        if (linearPower > 0){
+            robot.createDriveThread(-0.2,robot.distanceFromDepotToCrater);
+            robot.dt.start();
+        }else{
+            robot.createDriveThread(0.2, robot.distanceFromDepotToCrater);
+        }
+
+        while(robot.dt.isAlive()) {
+            //hammer time!
+        }
+
+    }
+    public void startTimer(){
+        runtime.reset();
+    }
+
+   // Ian attach the code from the GryoStraightener code 12/27/2018
 
     public void encoderDrive(double speed,
                              double distance,
@@ -235,7 +330,7 @@ public class GyroStraightener extends LinearOpMode {
 
     public void initDataAnalysis(){
         for (int i = 0; i < gyroErrorAvg.size; i++){
-            gyroErrorAvg.add(robot.angles.firstAngle);
+            gyroErrorAvg.add(robot.getHeading());
         }
     }
 
@@ -316,7 +411,7 @@ public class GyroStraightener extends LinearOpMode {
 
         // calculate error in -179 to +180 range  (
         robot.angles = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        robotError = targetAngle - robot.angles.firstAngle;
+        robotError = targetAngle - robot.getHeading();
         while (robotError > 180) robotError -= 360;
         while (robotError <= -180) robotError += 360;
         return robotError;
@@ -342,7 +437,7 @@ public class GyroStraightener extends LinearOpMode {
     void zeroGyro() {
         double headingBias;
         robot.angles = robot.imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
-        headingBias = robot.angles.firstAngle;
+        headingBias = robot.getHeading();
     }
 
     void composeTelemetry() {
@@ -432,8 +527,9 @@ public class GyroStraightener extends LinearOpMode {
     //  * @return      Current heading (Z axis)
     //  */
     double readGyro() {
-        double headingBias = robot.angles.firstAngle;
+        double headingBias = robot.getHeading();
         robot.angles = robot.imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
-        return robot.angles.firstAngle - headingBias;
+        return robot.getHeading() - headingBias;
     }
 }
+

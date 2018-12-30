@@ -1,24 +1,19 @@
 package org.firstinspires.ftc.teamcode;
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class VuforiaHardware {
-    Vuforia ocalizer vuforia;
+
+    VuforiaLocalizer vuforia;
     public VuforiaTrackables targetsRoverRuckus;
     public VuforiaTrackable blueRover;
     public VuforiaTrackable redFootprint;
@@ -26,7 +21,16 @@ public class VuforiaHardware {
     public VuforiaTrackable backSpace;
     public List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
 
+    //
+    public static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
+    public static final String LABEL_GOLD_MINERAL = "Gold Mineral"; // these were private
+    public static final String LABEL_SILVER_MINERAL = "Silver Mineral";
+
+    public TFObjectDetector tfod;
+    //\\
     HardwareMap hwmap = null;
+
+    public VuforiaHardware(){}//constructor
 
     public void init(HardwareMap ahwmap){
         hwmap = ahwmap;
@@ -46,5 +50,11 @@ public class VuforiaHardware {
         backSpace = targetsRoverRuckus.get(3);
         backSpace.setName("Back-Space");
         allTrackables.addAll(targetsRoverRuckus);
+
+        int tfodMonitorViewId = hwmap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hwmap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
     }
 }

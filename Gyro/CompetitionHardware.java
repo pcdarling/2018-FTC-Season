@@ -40,7 +40,7 @@ public class CompetitionHardware {
 
     // Drivetrain coolios variables
     double thresh  = 0.06;
-    double encCountsPerRev = 28 * 19.2 * 84 / 100; // electrical * internal * externaly
+    double encCountsPerRev = 28 * 19.2 * 84 / 100; // electrical * internal * external
     double wheelRadius = 2.25;
     double wheelCircumference = 2 * Math.PI * wheelRadius;
     double countsPerInch = encCountsPerRev / wheelCircumference;
