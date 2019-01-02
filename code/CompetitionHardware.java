@@ -22,14 +22,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class CompetitionHardware {
 
     // Hardware Variables
     DcMotor[] motors = new DcMotor[4];
-    public DcMotor liftM;
     public DcMotor theEvan;
     public Servo mrKrabs;
     public Servo markerMover;
+    IntakeHardware intake = new IntakeHardware();
 
     //Gyro Variables
     public BNO055IMU imu;
@@ -87,11 +88,8 @@ public class CompetitionHardware {
     // Thread Objects
     LocationThread lt;
     DriveThread dt;
-    /*
-    ClawThread ct;
     EvanThread et;
-    MarkerThread mt;
-    */
+    //MarkerThread mt;
 
 
     public CompetitionHardware(boolean cameraStatus){
@@ -100,6 +98,7 @@ public class CompetitionHardware {
 
     public void init(HardwareMap ahwmap){
         hwmap = ahwmap;
+        intake.init(hwmap);
 
         for (int i = 0; i < motors.length; i++){
             motors[i] = hwmap.get(DcMotor.class, "motor" + i);
@@ -110,16 +109,10 @@ public class CompetitionHardware {
             }
             motors[i].setPower(0);
             motors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            motors[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
-        liftM = hwmap.get(DcMotor.class, "lift");
-        liftM.setPower(0);
-        liftM.setDirection(DcMotor.Direction.FORWARD);
-        liftM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
-       // theEvan = hwmap.get(DcMotor.class, "the evan");
-       // mrKrabs = hwmap.get(Servo.class, "mr krabs");
-       // markerMover = hwmap.get(Servo.class, "marker");
+        // markerMover = hwmap.get(Servo.class, "marker");
 
         if (cameraStatus) {
             // vuforia targets
@@ -140,24 +133,20 @@ public class CompetitionHardware {
             backSpace.setName("Back-Space");
             allTrackables.addAll(targetsRoverRuckus);
         }
-        /* TODO: do the thing again you will need this
+
+        theEvan = hwmap.get(DcMotor.class, "lift");
         theEvan.setDirection(DcMotorSimple.Direction.FORWARD);
-        theEvan.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        theEvan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         theEvan.setPower(0);
+        theEvan.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //markerMover.setPosition(storePos);
 
-        markerMover.setPosition(storePos);
-
-        mrKrabs.setPosition(0.5);
-        */
 
         // Initialize threads just in case
         createLocationThread();
         createDriveThread(0,0);
-        /*
-        createClawThread();
-        createMarkerThread();
+        //createMarkerThread();
         createEvanThread(0);
-        */
     }
 
     public void imuInit() {
@@ -170,6 +159,7 @@ public class CompetitionHardware {
         imuParameters.loggingEnabled      = true;
         imuParameters.loggingTag          = "IMU";
         imuParameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
         imu.initialize(imuParameters);
     }
 
@@ -297,27 +287,25 @@ public class CompetitionHardware {
     public void createDriveThread(double power ,double inches){
         dt = new DriveThread(power,inches);
     }
+
     public void createRotateThread(double power, double degrees){
         dt = new DriveThread(power,degrees,true);
     }
+
     public void createLocationThread() {
         lt = new LocationThread();
     }
 
     /*
-    public void createClawThread() {
-        ct = new ClawThread();
-    }
     public void createMarkerThread() {
         mt = new MarkerThread();
     }
     */
-    /*
+
     public void createEvanThread(double power) {
        EvanThread et = new EvanThread(power);
        et.start();
     }
-    */
 
     public class DriveThread extends Thread {
         double power;
@@ -454,7 +442,6 @@ public class CompetitionHardware {
         }
     }
 
-
     public class EvanThread extends Thread{
         double power;
         public EvanThread(double power){
@@ -482,25 +469,6 @@ public class CompetitionHardware {
         }
     }
 
-    public class ClawThread extends Thread {
-        public ClawThread() {
-
-        }
-
-        public void run(){
-            toggleClaw();
-        }
-        public void toggleClaw(){
-            if (!k_isOpen) {
-                mrKrabs.setPosition(krabsOpen);
-                k_isOpen = true;
-            } else {
-                mrKrabs.setPosition(krabsClose);
-                k_isOpen = false;
-            }
-        }
-    }
-
     public class MarkerThread extends Thread {
         public MarkerThread() {
 
@@ -519,10 +487,8 @@ public class CompetitionHardware {
         }
     }
 
-
     public void resetLoc(){
         targetSeen = false;
         location = -1;
     }
 }
-
