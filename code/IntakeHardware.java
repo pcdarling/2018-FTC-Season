@@ -51,6 +51,7 @@ public class IntakeHardware {
         }
     }
 
+    // Don't need "x" or "a" but too lazy to rewrite
     public void moveIntake(double power, boolean x, boolean a) {
         //move the arm forward and backward
         if(x){
@@ -65,6 +66,7 @@ public class IntakeHardware {
 
     }
 
+    // Don't need "y" or "b" but too lazy to rewrite
     public void intakeArmRaiseLower(double power, boolean y, boolean b) {
         //rase and lower arm
         if(y){
@@ -94,5 +96,4 @@ public class IntakeHardware {
         for (int i = 0; i < INTServo.length; i++) {
             INTServo[i] = ITHwMap.get(Servo.class, "InTServo");
         }
-
 }*/

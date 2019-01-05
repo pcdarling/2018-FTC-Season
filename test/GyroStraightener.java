@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -12,148 +10,50 @@ import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.*;
 
 import java.util.Locale;
 
-@Autonomous(name = "CompetitionAutoOp", group = "CompetitionBot")
-public class CompetitionAutoOp extends LinearOpMode{
-    CompetitionHardware robot = new CompetitionHardware(true);
-    public GyroAnalysis gyroErrorAvg = new GyroAnalysis(30, 0 );
-    private ElapsedTime runtime = new ElapsedTime();
+@Autonomous(name="Auto library Test Swerve", group="Linear Opmode")
+
+public class GyroStraightener extends LinearOpMode {
+
+    VuforiaLocalizer vuforia;
+
+    public CompetitionHardware robot = new CompetitionHardware(false);
+    public GyroAnalysis gyroErrorAvg = new GyroAnalysis(30, 0);
     static final double P_DRIVE_COEFF_1 = 0.01;  // Larger is more responsive, but also less accurate
     static final double P_DRIVE_COEFF_2 = 0.25;  // Intenionally large so robot "wiggles" around the target setpoint while driving
+    double wheelBassQuestionMark = 6;
+
     double degreesTraveled = 0;
 
+    @Override
     public void runOpMode() throws InterruptedException {
         robot.imuInit(hardwareMap);
         robot.init(hardwareMap);
         sleep(50);
-        runtime.reset();
-
+        //composeTelemetry();
+        telemetry.update();
+        initDataAnalysis();
         waitForStart();
+        telemetry.update();
+        robot.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
-        // Lower Robot
-        robot.createEvanThread(1);
-        robot.et.start();
-        while (robot.et.isAlive()) {
-            // Busy Waiting
-        }
+        // op mode starts here
+        gyroTurn(0.6,robot.getHeading()+90, 0.015);
+        sleep(1000);
+        gyroTurn(0.6,robot.getHeading()+90,0.015);
+        sleep(1000);
+        gyroTurn(0.6,robot.getHeading()-90,0.015);
+        sleep(1000);
+        gyroTurn(0.6,robot.getHeading()-90,0.015);
+        sleep(1000);
+        gyroTurn(0.6,robot.getHeading()+90,0.015);
 
-        // Move away from hook
-        encoderDrive(0.2, 1, 30, true, robot.getHeading(), true, true, 0);
-        startTimer();
-        while (runtime.seconds() < 2) {
-            //idle time
-        }
-
-        // Put the Evan back up
-        robot.createEvanThread(-1);
-        robot.et.start();
-        while (robot.et.isAlive()) {
-            // Busy Waiting
-            // Could probably do without this busy waiting loop
-        }
-
-        // Go back to starting position
-        encoderDrive(-0.2, 1, 30, true, robot.getHeading(), true, true, 0);
-        startTimer();
-        while (runtime.seconds() < 2) {
-            //idle time
-        }
-
-        // Rotate to get ready to go forward
-        gyroTurn(0.5,robot.getHeading()-90,0.015);
-        startTimer();
-        while (runtime.seconds() < 2) {
-            //idle time
-        }
-
-        // Wait until location is determined
-        robot.createLocationThread();
-        robot.lt.start();
-        while(robot.location < 0) {
-            // Busy waiting
-        }
-
-        // Move until near samples
-        encoderDrive(0.2,robot.distanceToSamples,30, true, robot.getHeading(), true, true, 0);
-        startTimer();
-        while (runtime.seconds() < 2){
-            // allow time for things to stop
-        }
-
-        if (robot.location == 0) {
-            // SW
-            allTheWays(-0.5, -0.2); //  I did have a problem with handling InterruptedException here, I just took java's suggestion to
-            // "add exception to method signature"
-        }
-        else if (robot.location == 1) {
-            // SE
-            allTheWays(-0.5, 0.2);
-        }
-        else if (robot.location == 2) {
-            // NW
-            allTheWays(-0.5, 0.2);
-        }
-        else if (robot.location == 3){
-            // NE
-            allTheWays(-0.5, -0.2);
-        }
-
-        // placing team marker
-        //robot.toggleMarker();
-
+        //encoderDrive(0.4,10,30,true,robot.getHeading(),true,true,0);
     }
-
-    public void allTheWays(double rotatePower, double linearPower) throws InterruptedException {
-        // turn to avoid silver
-        gyroTurn(0.5, robot.getHeading()-90, 0.015);
-        startTimer();
-        while (runtime.seconds() < 2) {
-            //idle time
-        }
-        // driving away from sliver
-        encoderDrive(0.2, robot.distanceToAvoidMineral, 30, true, robot.getHeading(), true, true, 0);
-        startTimer();
-        while (runtime.seconds() < 2){
-            //idle time
-        }
-        //turing to the depot
-
-        gyroTurn(Math.abs(rotatePower), robot.getHeading()+Math.signum(rotatePower)*45, 0.015);
-        startTimer();
-        while (runtime.seconds() < 2){
-            //idle time
-        }
-
-        // going to the depot
-        encoderDrive(linearPower, robot.distanceToDepot, 30, true, robot.getHeading(), true, true, 0);
-        startTimer();
-        while (runtime.seconds() < 2){
-            // idle time
-        }
-
-        //here would be the code for dropping the team marker, but the team marker dropper doesn't exist physically yet, so
-
-        startTimer();
-        while (runtime.seconds() < 2){
-            //stop...
-        }
-        // Drive towards crater (Hammer time!)
-        if (linearPower > 0){
-            encoderDrive(-0.2,robot.distanceFromDepotToCrater, 30, true, robot.getHeading(), true, true, 0);
-        }else{
-            encoderDrive(0.2, robot.distanceFromDepotToCrater, 30, true, robot.getHeading(), true, true, 0);
-        }
-
-
-    }
-
-    public void startTimer(){
-        runtime.reset();
-    }
-
-    // Ian attach the code from the GryoStraightener code 12/27/2018
 
     public void encoderDrive(double speed,
                              double distance,
@@ -198,13 +98,13 @@ public class CompetitionAutoOp extends LinearOpMode{
                     if (headingChange > 0.0) {
                         // Assume 15.25 inch wheelbase
                         // Add extra distance to the wheel on outside of turn
-                        rightDistance += Math.signum(distance) * 2 * 3.1415 * 12 * headingChange / 360.0;
+                        rightDistance += Math.signum(distance) * 2 * 3.1415 * wheelBassQuestionMark * headingChange / 360.0;
                         RobotLog.i("DM10337 -- Turn adjusted R distance:" + rightDistance);
                     } else {
                         // Assume 15.25 inch wheelbase
                         // Add extra distance from the wheel on inside of turn
                         // headingChange is - so this is increasing the left distance
-                        leftDistance -= Math.signum(distance) * 2 * 3.1415 * 12 * headingChange / 360.0;
+                        leftDistance -= Math.signum(distance) * 2 * 3.1415 * wheelBassQuestionMark * headingChange / 360.0;
                         RobotLog.i("DM10337 -- Turn adjusted L distance:" + leftDistance);
                     }
                 }
@@ -342,15 +242,14 @@ public class CompetitionAutoOp extends LinearOpMode{
 
     public void gyroTurn(double speed, double angle, double coefficient) {
 
-        telemetry.addLine("DM10337- gyroTurn start  speed:" + speed +
-                "  heading:" + angle);
+
 
         // keep looping while we are still active, and not on heading.
         while (opModeIsActive() && !onHeading(speed, angle, coefficient)) {
             // Allow time for other processes to run.
             // onHeading() does the work of turning us
+            telemetry.update();
             sleep(1);
-
         }
 
         telemetry.addLine("DM10337- gyroTurn done   heading actual:" + readGyro());
@@ -389,6 +288,10 @@ public class CompetitionAutoOp extends LinearOpMode{
             steer = getSteer(error, PCoeff);
             rightSpeed = speed * steer;
             leftSpeed = -rightSpeed;
+           /* telemetry.addData("rightSpeed", rightSpeed);
+            telemetry.addData("leftSpeed",leftSpeed);
+            telemetry.addData("Steer:" , steer);
+            telemetry.update();*/
         }
 
         // Send desired speeds to motors.
@@ -410,6 +313,9 @@ public class CompetitionAutoOp extends LinearOpMode{
     public double getError(double targetAngle) {
 
         double robotError;
+
+
+        telemetry.addLine("Robot Current angle" + robot.getHeading());
 
         // calculate error in -179 to +180 range  (
         robot.angles = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
@@ -442,7 +348,7 @@ public class CompetitionAutoOp extends LinearOpMode{
         headingBias = robot.getHeading();
     }
 
-    void composeTelemetry() {
+ /*   void composeTelemetry() {
 
         // At the beginning of each telemetry update, grab a bunch of data
         // from the IMU that we will then display in separate lines.
@@ -507,7 +413,7 @@ public class CompetitionAutoOp extends LinearOpMode{
                                         + robot.gravity.zAccel * robot.gravity.zAccel));
                     }
                 });
-    }
+    }*/
 
     //----------------------------------------------------------------------------------------------
     // Formatting

@@ -8,7 +8,6 @@ public class CompetitionTeleOp extends OpMode{
 
     double rtTresh = 0.03;
     boolean tankControls = true ;
-    int start = 0;
 
     @Override
     public void init(){
@@ -32,7 +31,7 @@ public class CompetitionTeleOp extends OpMode{
         if (robot.targetSeen){
             telemetry.addData("Which Target? ", robot.location);
         }*/
-        telemetry.addData("liftPos: ", "%d", robot.theEvan.getCurrentPosition());
+        telemetry.addData("Lift Pos: ", robot.theEvan.getCurrentPosition());
         telemetry.update();
     }
 
@@ -47,6 +46,7 @@ public class CompetitionTeleOp extends OpMode{
         double Ly = gamepad1.left_stick_y;
         boolean rb = gamepad1.right_bumper;
 
+        // Drivetrain Controls
         if (gamepad1.dpad_left){
             if (!tankControls) {
                 tankControls = true;
@@ -62,36 +62,57 @@ public class CompetitionTeleOp extends OpMode{
             robot.FPSmovementByControl(Rx, Ly, rb);
         }
 
+
+        // Evan Controls
+        double evanPower;
+        if (rb) { // Turbo
+            evanPower = 1;
+        } else { // Precise
+            evanPower = 0.5;
+        }
+
+        if (gamepad1.left_trigger > rtTresh) {
+            robot.theEvan.setPower(evanPower);
+        } else if (gamepad1.right_trigger > rtTresh) {
+            robot.theEvan.setPower(-evanPower);
+        } else {
+            robot.theEvan.setPower(0);
+        }
+
     }
 
     public void checkOperatorControls(){
-        double power = 1;
-        boolean a = gamepad2.a;
-        boolean x = gamepad2.x;
-        boolean y = gamepad2.y;
-        boolean b = gamepad2.b;
+        double thresh = 0.06;
+        double ly = gamepad2.left_stick_y;
+        double ry = gamepad2.right_stick_y;
         boolean leftBumper = gamepad2.left_bumper;
         boolean rBumper = gamepad2.right_bumper;
 
-        if (gamepad1.right_trigger > rtTresh){
-            robot.theEvan.setPower(0.5);
+        // Intake controls
+        robot.intake.intakeSuccc(1, rBumper,leftBumper); // Dat succ
+        if(Math.abs(ly) > thresh) { // Strong enough
+            if (ly > 0) { // up
+                robot.intake.intakeArmRaiseLower(ly, true, false);
+            } else { // down
+                robot.intake.intakeArmRaiseLower(ly,false,true);
+            }
+        } else { // Not strong enough
+            robot.intake.intakeArmRaiseLower(0,false,false);
         }
-        else if (gamepad1.left_trigger > rtTresh){
-            robot.theEvan.setPower(-0.5);
+        if(Math.abs(ry) > thresh) { // Strong enough
+            if (ry > 0) { // up
+                robot.intake.moveIntake(ry,true,false);
+            } else { // down
+                robot.intake.moveIntake(ry,false,true);
+            }
+        } else { // Not strong enough
+            robot.intake.moveIntake(0,false,false);
         }
-        else{
-            robot.theEvan.setPower(0);
-        }
-        robot.intake.intakeSuccc(power, rBumper,leftBumper);
-        robot.intake.moveIntake(power, x, a);
-        robot.intake.intakeArmRaiseLower(power, y, b);
 
-        /*
-        if (gamepad2.x && !robot.mt.isAlive()){
+        if (gamepad2.dpad_down && !robot.mt.isAlive()){
             robot.createMarkerThread();
             robot.mt.start();
         }
-        */
     }
 
     public void checkVuforiaControls(){
