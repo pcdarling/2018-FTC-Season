@@ -28,9 +28,9 @@ public class CompetitionHardware {
     // Hardware Variables
     DcMotor[] motors = new DcMotor[4];
     public DcMotor theEvan;
-    public Servo mrKrabs;
     public Servo markerMover;
     IntakeHardware intake = new IntakeHardware();
+    public Servo phoneServo;
 
     //Gyro Variables
     public BNO055IMU imu;
@@ -56,15 +56,18 @@ public class CompetitionHardware {
     double distanceToAvoidMineral = 41;
 
     // The Evan variables
-    int theEvanMax = 1000;
-    double krabsOpen = 1;
-    double krabsClose = 0;
-    boolean k_isOpen = false;
+    int theEvanMax = -59;
 
     // Team Marker variables
-    double storePos;
-    double ejectPos;
+    double storePos = 0.4;
+    double ejectPos = 0.1;
     boolean tm_isEjected = false;
+
+    // Phone Servo Variables
+    double phoneStartPos = 0.07;
+    double phoneCenterPos = 0.2;
+    double phoneSamplePos = 0.33;
+    double phoneEndPos = 0.62;
 
     // Vuforia Variables
     int location = -1;
@@ -89,8 +92,7 @@ public class CompetitionHardware {
     LocationThread lt;
     DriveThread dt;
     EvanThread et;
-    //MarkerThread mt;
-
+    MarkerThread mt;
 
     public CompetitionHardware(boolean cameraStatus){
         this.cameraStatus = cameraStatus;
@@ -112,8 +114,6 @@ public class CompetitionHardware {
             motors[i].setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
-        // markerMover = hwmap.get(Servo.class, "marker");
-
         if (cameraStatus) {
             // vuforia targets
             int cameraMonitorViewId = hwmap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmap.appContext.getPackageName());
@@ -134,22 +134,30 @@ public class CompetitionHardware {
             allTrackables.addAll(targetsRoverRuckus);
         }
 
+        // The Evan init
         theEvan = hwmap.get(DcMotor.class, "lift");
         theEvan.setDirection(DcMotorSimple.Direction.FORWARD);
         theEvan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         theEvan.setPower(0);
         theEvan.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //markerMover.setPosition(storePos);
 
+        // Marker Deployer init
+        markerMover = hwmap.get(Servo.class, "marker");
+        markerMover.setPosition(storePos);
+
+        // Phone Servo init
+        phoneServo = hwmap.get(Servo.class, "phone_servo");
+        phoneServo.setPosition(phoneStartPos);
 
         // Initialize threads just in case
         createLocationThread();
         createDriveThread(0,0);
-        //createMarkerThread();
+        createMarkerThread();
         createEvanThread(0);
     }
 
-    public void imuInit() {
+    public void imuInit(HardwareMap ahwmap) {
+        hwmap = ahwmap;
         BNO055IMU.Parameters imuParameters = new BNO055IMU.Parameters();
 
         imu = hwmap.get(BNO055IMU.class, "imu");
@@ -296,15 +304,13 @@ public class CompetitionHardware {
         lt = new LocationThread();
     }
 
-    /*
     public void createMarkerThread() {
         mt = new MarkerThread();
     }
-    */
 
     public void createEvanThread(double power) {
-       EvanThread et = new EvanThread(power);
-       et.start();
+        EvanThread et = new EvanThread(power);
+        et.start();
     }
 
     public class DriveThread extends Thread {
@@ -457,11 +463,11 @@ public class CompetitionHardware {
         }
         public void moveTheEvan(double power) {
             int encoderCount = theEvan.getCurrentPosition();
-            if (power < thresh){
+            if (Math.abs(power) < thresh){ // Stop!!
             }
-            else if (power > 0 && encoderCount >= theEvanMax){
+            else if (power < 0 && encoderCount <= theEvanMax){ // Stop!!
             }
-            else if (power < 0 && encoderCount <= theEvanMax){
+            else if (power > 0 && encoderCount >= 0){ // Stop!!
             }
             else {
                 theEvan.setPower(power);
@@ -483,6 +489,7 @@ public class CompetitionHardware {
             }
             else{
                 markerMover.setPosition(ejectPos);
+                tm_isEjected = true;
             }
         }
     }
@@ -491,4 +498,20 @@ public class CompetitionHardware {
         targetSeen = false;
         location = -1;
     }
+
+    // TODO: THIS IS NOT USED. IF YOU WANNA TEST SAMPLING THE MINERALS, THEN PUT THIS SOMEWHERE IN AUTO
+    public void scanPhone(int position) {
+        if (position == 0) {
+            phoneServo.setPosition(phoneStartPos);
+        } else if (position == 1) {
+            phoneServo.setPosition(phoneCenterPos);
+        } else if (position == 2) {
+            phoneServo.setPosition(phoneSamplePos);
+        } else if (position == 3){
+            phoneServo.setPosition(phoneEndPos);
+        } else {
+            phoneServo.setPosition(phoneStartPos);
+        }
+    }
+
 }

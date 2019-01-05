@@ -25,7 +25,9 @@ public class CompetitionAutoOp extends LinearOpMode{
     double degreesTraveled = 0;
 
     public void runOpMode() throws InterruptedException {
+        robot.imuInit(hardwareMap);
         robot.init(hardwareMap);
+        sleep(50);
         runtime.reset();
 
         waitForStart();
@@ -60,7 +62,7 @@ public class CompetitionAutoOp extends LinearOpMode{
         }
 
         // Rotate to get ready to go forward
-        gyroTurn(0.2,-90,0.015);
+        gyroTurn(0.5,robot.getHeading()-90,0.015);
         startTimer();
         while (runtime.seconds() < 2) {
             //idle time
@@ -82,20 +84,20 @@ public class CompetitionAutoOp extends LinearOpMode{
 
         if (robot.location == 0) {
             // SW
-            allTheWays(-0.2, -0.2); //  I did have a problem with handling InterruptedException here, I just took java's suggestion to
+            allTheWays(-0.5, -0.2); //  I did have a problem with handling InterruptedException here, I just took java's suggestion to
             // "add exception to method signature"
         }
         else if (robot.location == 1) {
             // SE
-            allTheWays(-0.2, 0.2);
+            allTheWays(-0.5, 0.2);
         }
         else if (robot.location == 2) {
             // NW
-            allTheWays(-0.2, 0.2);
+            allTheWays(-0.5, 0.2);
         }
         else if (robot.location == 3){
             // NE
-            allTheWays(-0.2, -0.2);
+            allTheWays(-0.5, -0.2);
         }
 
         // placing team marker
@@ -105,7 +107,7 @@ public class CompetitionAutoOp extends LinearOpMode{
 
     public void allTheWays(double rotatePower, double linearPower) throws InterruptedException {
         // turn to avoid silver
-        gyroTurn(-0.2, 90, 0.015);
+        gyroTurn(0.5, robot.getHeading()-90, 0.015);
         startTimer();
         while (runtime.seconds() < 2) {
             //idle time
@@ -117,7 +119,8 @@ public class CompetitionAutoOp extends LinearOpMode{
             //idle time
         }
         //turing to the depot
-        gyroTurn(rotatePower, 45, 0.015);
+
+        gyroTurn(Math.abs(rotatePower), robot.getHeading()+Math.signum(rotatePower)*45, 0.015);
         startTimer();
         while (runtime.seconds() < 2){
             //idle time
@@ -531,5 +534,3 @@ public class CompetitionAutoOp extends LinearOpMode{
         return robot.getHeading() - headingBias;
     }
 }
-
-
