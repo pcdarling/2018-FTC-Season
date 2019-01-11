@@ -14,22 +14,22 @@ public class IntakeHardware {
 
 
     HardwareMap ITHwMap = null;
+
     public void init(HardwareMap ahwMap) {
         /* Save reference to Hardware map */
         ITHwMap = ahwMap;
 
-        magSwitch = ITHwMap.get(DigitalChannel.class,"magSwitch");
+        magSwitch = ITHwMap.get(DigitalChannel.class, "magSwitch");
         // InTouchS = ITHwMap.get(TouchSensor.class, "InTTouch");
 
         for (int i = 0; i < ITMotors.length; i++) {
-            int even = i%2;
-            if(even == 0){
+            int even = i % 2;
+            if (even == 0) {
                 ITMotors[i] = ITHwMap.get(DcMotor.class, "ITMotor" + i);
                 ITMotors[i].setDirection(DcMotor.Direction.FORWARD);
-                ITMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                ITMotors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 ITMotors[i].setPower(0);
-            }
-            else {
+            } else {
                 ITMotors[i] = ITHwMap.get(DcMotor.class, "ITMotor" + i);
                 ITMotors[i].setDirection(DcMotor.Direction.FORWARD);
                 ITMotors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -39,14 +39,13 @@ public class IntakeHardware {
         }
 
     }
-    public void intakeSuccc(double power, boolean rB,boolean leftBumper) {
-        if(rB) {
+
+    public void intakeSuccc(double power, boolean rB, boolean leftBumper) {
+        if (rB) {
             ITMotors[0].setPower(power);
-        }
-        else if (leftBumper){
+        } else if (leftBumper) {
             ITMotors[0].setPower(-power);
-        }
-        else {
+        } else {
             ITMotors[0].setPower(0);
         }
     }
@@ -54,13 +53,12 @@ public class IntakeHardware {
     // Don't need "x" or "a" but too lazy to rewrite
     public void moveIntake(double power, boolean x, boolean a) {
         //move the arm forward and backward
-        if(x){
+        if (x) {
             ITMotors[2].setPower(power);
         }
-        if(a){
+        if (a) {
             ITMotors[2].setPower(-power);
-        }
-        else {
+        } else {
             ITMotors[2].setPower(0);
         }
 
@@ -69,18 +67,12 @@ public class IntakeHardware {
     // Don't need "y" or "b" but too lazy to rewrite
     public void intakeArmRaiseLower(double power, boolean y, boolean b) {
         //rase and lower arm
-        if(y){
+        if (y) {
             ITMotors[1].setPower(power);
         }
-        if(b){
-            if (magSwitch.getState() == true){
-                ITMotors[1].setPower(-power);
-            }
-            else{
-                ITMotors[1].setPower(0);
-            }
-        }
-        else{
+        if (b) {
+            ITMotors[1].setPower(-power);
+        } else {
             ITMotors[1].setPower(0);
         }
     }
