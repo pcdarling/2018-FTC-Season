@@ -92,27 +92,36 @@ public class CompetitionTeleOp extends OpMode{
         robot.intake.intakeSuccc(1, rBumper,leftBumper); // Dat succ
         if(Math.abs(ly) > thresh) { // Strong enough
             if (ly > 0) { // up
-                robot.intake.intakeArmRaiseLower(ly, true, false);
+                robot.intake.intakeArmRaiseLower(Math.abs(ly), true, false);
             } else { // down
-                robot.intake.intakeArmRaiseLower(ly,false,true);
+                robot.intake.intakeArmRaiseLower(Math.abs(ly/3),false,true);
             }
         } else { // Not strong enough
             robot.intake.intakeArmRaiseLower(0,false,false);
         }
+        if (gamepad2.dpad_up){
+            robot.intake.intakeArmRaiseLower(1, true, false); // max power going up
+        }
         if(Math.abs(ry) > thresh) { // Strong enough
             if (ry > 0) { // up
-                robot.intake.moveIntake(ry,true,false);
+                robot.intake.moveIntake(Math.abs(ry),true,false);
             } else { // down
-                robot.intake.moveIntake(ry,false,true);
+                robot.intake.moveIntake(Math.abs(ry),false,true);
             }
         } else { // Not strong enough
             robot.intake.moveIntake(0,false,false);
         }
 
-        if (gamepad2.dpad_down && !robot.mt.isAlive()){
+        if (gamepad2.y){
+            robot.markerMover.setPosition(robot.storePos);
+        }
+        if (gamepad2.a){
+            robot.markerMover.setPosition(robot.ejectPos);
+        }
+        /*if (gamepad2.dpad_down && !robot.mt.isAlive()){
             robot.createMarkerThread();
             robot.mt.start();
-        }
+        }*/
     }
 
     public void checkVuforiaControls(){

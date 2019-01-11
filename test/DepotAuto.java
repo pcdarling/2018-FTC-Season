@@ -15,8 +15,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 import java.util.Locale;
 
-@Autonomous(name = "CompetitionAutoOp", group = "CompetitionBot")
-public class CompetitionAutoOp extends LinearOpMode{
+@Autonomous(name = "Depot Auto", group = "CompetitionBot")
+public class DepotAuto extends LinearOpMode{
     CompetitionHardware robot = new CompetitionHardware(true);
     public GyroAnalysis gyroErrorAvg = new GyroAnalysis(30, 0 );
     private ElapsedTime runtime = new ElapsedTime();
@@ -32,43 +32,6 @@ public class CompetitionAutoOp extends LinearOpMode{
 
         waitForStart();
 
-        /*// Lower Robot
-        robot.createEvanThread(1);
-        robot.et.start();
-        while (robot.et.isAlive()) {
-            // Busy Waiting
-        }
-
-        // Move away from hook
-        encoderDrive(0.2, 1, 30, true, robot.getHeading(), true, true, 0);
-        startTimer();
-        while (runtime.seconds() < 2) {
-            //idle time
-        }
-
-        // Put the Evan back up
-        robot.createEvanThread(-1);
-        robot.et.start();
-        while (robot.et.isAlive()) {
-            // Busy Waiting
-            // Could probably do without this busy waiting loop
-        }
-
-        // Go back to starting position
-        encoderDrive(-0.2, 1, 30, true, robot.getHeading(), true, true, 0);
-        startTimer();
-        while (runtime.seconds() < 2) {
-            //idle time
-        }
-
-        // Rotate to get ready to go forward
-        gyroTurn(0.5,robot.getHeading()-90,0.015);
-        startTimer();
-        while (runtime.seconds() < 2) {
-            //idle time
-        }*/
-
-        // Wait until location is determined
 
 
         // Move until near samples
@@ -78,30 +41,16 @@ public class CompetitionAutoOp extends LinearOpMode{
             // allow time for things to stop
         }
 
-        if (robot.location == 0) {
             // SW
-            allTheWays(-0.5, -0.2); //  I did have a problem with handling InterruptedException here, I just took java's suggestion to
+            allTheWays(0.5, -0.2); //  I did have a problem with handling InterruptedException here, I just took java's suggestion to
             // "add exception to method signature"
-        }
-        else if (robot.location == 1) {
-            // SE
-            allTheWays(-0.5, 0.2);
-        }
-        else if (robot.location == 2) {
-            // NW
-            allTheWays(-0.5, 0.2);
-        }
-        else if (robot.location == 3){
-            // NE
-            allTheWays(-0.5, -0.2);
-        }
 
 
     }
 
     public void allTheWays(double rotatePower, double linearPower) throws InterruptedException {
         // turn to avoid silver
-        gyroTurn(0.5, robot.getHeading()-90, 0.015);
+        gyroTurn(0.5, robot.getHeading()+90, 0.015);
         startTimer();
         while (runtime.seconds() < 2) {
             //idle time
@@ -129,7 +78,6 @@ public class CompetitionAutoOp extends LinearOpMode{
 
         //here would be the code for dropping the team marker, but the team marker dropper doesn't exist physically yet, so
         // placing team marker
-        robot.markerMover.setPosition(robot.ejectPos);
 
         startTimer();
         while (runtime.seconds() < 2){
@@ -142,6 +90,7 @@ public class CompetitionAutoOp extends LinearOpMode{
         }else{
             encoderDrive(0.2, robot.distanceFromDepotToCrater, 30, true, robot.getHeading(), true, true, 0);
         }
+        robot.markerMover.setPosition(robot.storePos);
 
 
     }

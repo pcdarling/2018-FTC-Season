@@ -50,7 +50,7 @@ public class CompetitionHardware {
     double robotCircumference = Math.PI*robotDiameter;
 
     // Measured variables in inches
-    double distanceToSamples = 26.5;
+    double distanceToSamples = 20; // was 26.5
     double distanceFromDepotToCrater = 93;
     double distanceToDepot = 59;
     double distanceToAvoidMineral = 41;
@@ -60,7 +60,7 @@ public class CompetitionHardware {
 
     // Team Marker variables
     double storePos = 0.4;
-    double ejectPos = 0.1;
+    double ejectPos = 0.05;
     boolean tm_isEjected = false;
 
     // Phone Servo Variables
@@ -89,7 +89,7 @@ public class CompetitionHardware {
     HardwareMap hwmap = null;
 
     // Thread Objects
-    LocationThread lt;
+    //LocationThread lt;
     DriveThread dt;
     EvanThread et;
     MarkerThread mt;
@@ -150,7 +150,7 @@ public class CompetitionHardware {
         phoneServo.setPosition(phoneStartPos);
 
         // Initialize threads just in case
-        createLocationThread();
+        //createLocationThread();
         createDriveThread(0,0);
         createMarkerThread();
         createEvanThread(0);
@@ -300,17 +300,16 @@ public class CompetitionHardware {
         dt = new DriveThread(power,degrees,true);
     }
 
-    public void createLocationThread() {
+    /*public void createLocationThread() {
         lt = new LocationThread();
-    }
+    }*/
 
     public void createMarkerThread() {
         mt = new MarkerThread();
     }
 
     public void createEvanThread(double power) {
-        EvanThread et = new EvanThread(power);
-        et.start();
+        et = new EvanThread(power);
     }
 
     public class DriveThread extends Thread {
