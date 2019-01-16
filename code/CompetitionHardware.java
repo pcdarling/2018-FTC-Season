@@ -56,7 +56,7 @@ public class CompetitionHardware {
     double distanceToAvoidMineral = 41;
 
     // The Evan variables
-    int theEvanMax = -59;
+    int theEvanMax = -10;
 
     // Team Marker variables
     double storePos = 0.4;
@@ -64,10 +64,9 @@ public class CompetitionHardware {
     boolean tm_isEjected = false;
 
     // Phone Servo Variables
-    double phoneStartPos = 0.07;
-    double phoneCenterPos = 0.2;
-    double phoneSamplePos = 0.33;
-    double phoneEndPos = 0.62;
+    double phoneFrontPos = 0.48;
+    double phonePicturePos = 0.28;
+    double phoneEndPos = 0.07;
 
     // Vuforia Variables
     int location = -1;
@@ -89,7 +88,7 @@ public class CompetitionHardware {
     HardwareMap hwmap = null;
 
     // Thread Objects
-    //LocationThread lt;
+    LocationThread lt;
     DriveThread dt;
     EvanThread et;
     MarkerThread mt;
@@ -136,10 +135,11 @@ public class CompetitionHardware {
 
         // The Evan init
         theEvan = hwmap.get(DcMotor.class, "lift");
+        theEvan.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         theEvan.setDirection(DcMotorSimple.Direction.FORWARD);
-        theEvan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         theEvan.setPower(0);
         theEvan.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        theEvan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Marker Deployer init
         markerMover = hwmap.get(Servo.class, "marker");
@@ -147,11 +147,11 @@ public class CompetitionHardware {
 
         // Phone Servo init
         phoneServo = hwmap.get(Servo.class, "phone_servo");
-        phoneServo.setPosition(phoneStartPos);
+        phoneServo.setPosition(phonePicturePos);
 
         // Initialize threads just in case
         //createLocationThread();
-        createDriveThread(0,0);
+        //createDriveThread(0,0);
         createMarkerThread();
         createEvanThread(0);
     }
@@ -300,9 +300,9 @@ public class CompetitionHardware {
         dt = new DriveThread(power,degrees,true);
     }
 
-    /*public void createLocationThread() {
+    public void createLocationThread() {
         lt = new LocationThread();
-    }*/
+    }
 
     public void createMarkerThread() {
         mt = new MarkerThread();
@@ -334,8 +334,6 @@ public class CompetitionHardware {
                 this.driveInInches(this.power, this.inchesOrDegress, false);
             } else if (this.rotation == 1) {
                 this.rotateInDegrees(this.power, this.inchesOrDegress);
-
-
             }
         }
 
@@ -449,6 +447,7 @@ public class CompetitionHardware {
 
     public class EvanThread extends Thread{
         double power;
+        int encoderCount = theEvan.getCurrentPosition();
         public EvanThread(double power){
             this.power = power;
         }
@@ -461,16 +460,14 @@ public class CompetitionHardware {
             }
         }
         public void moveTheEvan(double power) {
-            int encoderCount = theEvan.getCurrentPosition();
-            if (Math.abs(power) < thresh){ // Stop!!
+            theEvan.setPower(power);
+            while(true) {
+                encoderCount = theEvan.getCurrentPosition();
+                if (Math.abs(power) < thresh) {break;}
+                else if (power < 0 && encoderCount <= theEvanMax) {break;}
+                else if (power > 0 && encoderCount >= 0) {break;}
             }
-            else if (power < 0 && encoderCount <= theEvanMax){ // Stop!!
-            }
-            else if (power > 0 && encoderCount >= 0){ // Stop!!
-            }
-            else {
-                theEvan.setPower(power);
-            }
+            theEvan.setPower(0);
         }
     }
 
@@ -501,15 +498,13 @@ public class CompetitionHardware {
     // TODO: THIS IS NOT USED. IF YOU WANNA TEST SAMPLING THE MINERALS, THEN PUT THIS SOMEWHERE IN AUTO
     public void scanPhone(int position) {
         if (position == 0) {
-            phoneServo.setPosition(phoneStartPos);
+            phoneServo.setPosition(phoneFrontPos);
         } else if (position == 1) {
-            phoneServo.setPosition(phoneCenterPos);
+            phoneServo.setPosition(phonePicturePos);
         } else if (position == 2) {
-            phoneServo.setPosition(phoneSamplePos);
-        } else if (position == 3){
             phoneServo.setPosition(phoneEndPos);
         } else {
-            phoneServo.setPosition(phoneStartPos);
+            phoneServo.setPosition(phoneFrontPos);
         }
     }
 

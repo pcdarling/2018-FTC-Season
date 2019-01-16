@@ -15,6 +15,12 @@ public class CompetitionTeleOp extends OpMode{
     }
 
     @Override
+    public void init_loop() {
+        telemetry.addData("Lift Pos:",robot.theEvan.getCurrentPosition());
+        telemetry.update();
+    }
+
+    @Override
     public void start(){
 
     }
@@ -92,9 +98,9 @@ public class CompetitionTeleOp extends OpMode{
         robot.intake.intakeSuccc(1, rBumper,leftBumper); // Dat succ
         if(Math.abs(ly) > thresh) { // Strong enough
             if (ly > 0) { // up
-                robot.intake.intakeArmRaiseLower(Math.abs(ly), true, false);
+                robot.intake.intakeArmRaiseLower(Math.abs(ly*0.6), true, false);
             } else { // down
-                robot.intake.intakeArmRaiseLower(Math.abs(ly/3),false,true);
+                robot.intake.intakeArmRaiseLower(Math.abs(ly*0.35),false,true);
             }
         } else { // Not strong enough
             robot.intake.intakeArmRaiseLower(0,false,false);
