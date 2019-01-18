@@ -98,9 +98,9 @@ public class CompetitionTeleOp extends OpMode{
         robot.intake.intakeSuccc(1, rBumper,leftBumper); // Dat succ
         if(Math.abs(ly) > thresh) { // Strong enough
             if (ly > 0) { // up
-                robot.intake.intakeArmRaiseLower(Math.abs(ly*0.6), true, false);
+                robot.intake.intakeArmRaiseLower(Math.abs(ly), false, true);
             } else { // down
-                robot.intake.intakeArmRaiseLower(Math.abs(ly*0.35),false,true);
+                robot.intake.intakeArmRaiseLower(Math.abs(ly*0.25),true,false);
             }
         } else { // Not strong enough
             robot.intake.intakeArmRaiseLower(0,false,false);

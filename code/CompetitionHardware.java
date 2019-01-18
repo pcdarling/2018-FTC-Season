@@ -50,23 +50,23 @@ public class CompetitionHardware {
     double robotCircumference = Math.PI*robotDiameter;
 
     // Measured variables in inches
-    double distanceToSamples = 20; // was 26.5
-    double distanceFromDepotToCrater = 93;
-    double distanceToDepot = 59;
-    double distanceToAvoidMineral = 41;
+    double distanceToSamples = 16.35; // was 26.5
+    double distanceFromDepotToCrater = 85;
+    double distanceToDepot = 49;
+    double distanceToAvoidMineral = 46;
 
     // The Evan variables
-    int theEvanMax = -10;
+    int theEvanMax = -4408; // 4408
 
     // Team Marker variables
-    double storePos = 0.4;
-    double ejectPos = 0.05;
+    double storePos = 0.44;
+    double ejectPos = 0.09;
     boolean tm_isEjected = false;
 
     // Phone Servo Variables
-    double phoneFrontPos = 0.48;
-    double phonePicturePos = 0.28;
-    double phoneEndPos = 0.07;
+    double phoneFrontPos = 0.68;
+    double phoneMidPos = 0.25;
+    double phonePicturePos = 0;
 
     // Vuforia Variables
     int location = -1;
@@ -420,16 +420,16 @@ public class CompetitionHardware {
             while (!targetSeen) {
                 for (VuforiaTrackable trackable : allTrackables) {
                     if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
-                        if (trackable.getName() == "Blue-Rover") { // South West
+                        if (trackable.getName() == "Front-Craters") { // South West
                             location = 0;
                         }
-                        if (trackable.getName() == "Back-Space") { // South East
+                        if (trackable.getName() == "Red-Footprint") { // South East
                             location = 1;
                         }
-                        if (trackable.getName() == "Front-Craters") { // North West
+                        if (trackable.getName() == "Blue-Rover") { // North West
                             location = 2;
                         }
-                        if (trackable.getName() == "Red-Footprint") { // North East
+                        if (trackable.getName() == "Back-Space") { // North East
                             location = 3;
                         }
                         targetSeen = true;
@@ -501,11 +501,15 @@ public class CompetitionHardware {
             phoneServo.setPosition(phoneFrontPos);
         } else if (position == 1) {
             phoneServo.setPosition(phonePicturePos);
-        } else if (position == 2) {
-            phoneServo.setPosition(phoneEndPos);
         } else {
             phoneServo.setPosition(phoneFrontPos);
         }
+    }
+
+    // TODO: Implement this, Brandon
+    public int findGold() {
+        // -1: Can't find Gold; 0: Left; 1: Middle; 2: Right
+        return -1;
     }
 
 }
