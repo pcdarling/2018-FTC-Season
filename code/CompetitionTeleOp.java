@@ -88,11 +88,15 @@ public class CompetitionTeleOp extends OpMode{
     }
 
     public void checkOperatorControls(){
+        // gamepad2.x, gamepad2.y, gamepad2.b, and gamepad2.a are being used for larry deplore and the servo on the intake system
+
         double thresh = 0.06;
         double ly = gamepad2.left_stick_y;
         double ry = gamepad2.right_stick_y;
         boolean leftBumper = gamepad2.left_bumper;
         boolean rBumper = gamepad2.right_bumper;
+
+
 
         // Intake controls
         robot.intake.intakeSuccc(1, rBumper,leftBumper); // Dat succ
@@ -117,7 +121,17 @@ public class CompetitionTeleOp extends OpMode{
         } else { // Not strong enough
             robot.intake.moveIntake(0,false,false);
         }
-
+        //servo on the intake
+        if(gamepad2.x){
+            robot.intake.ITServo.setPosition(robot.intake.openBox);
+        }
+        if(gamepad2.b){
+            robot.intake.ITServo.setPosition(robot.intake.closeBox);
+        }
+        if(gamepad2.y){
+            robot.intake.ITServo.setPosition(robot.intake.halfwayOpenBox);
+        }
+        //servo to deploy larry
         if (gamepad2.y){
             robot.markerMover.setPosition(robot.storePos);
         }

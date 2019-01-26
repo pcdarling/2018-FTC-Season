@@ -11,13 +11,18 @@ public class IntakeHardware {
     DcMotor[] ITMotors = new DcMotor[3];
     //TouchSensor InTouchS = null;
     //DigitalChannel magSwitch = null;
+    Servo ITServo = null;
 
     HardwareMap ITHwMap = null;
+    // IntakeServo
+    double openBox = 1;
+    double closeBox = 0;
+    double halfwayOpenBox = 0.5;
 
     public void init(HardwareMap ahwMap) {
         /* Save reference to Hardware map */
         ITHwMap = ahwMap;
-
+        ITServo =ITHwMap.get(Servo.class,"ITServo");
         //magSwitch = ITHwMap.get(DigitalChannel.class, "magSwitch");
         //InTouchS = ITHwMap.get(TouchSensor.class, "InTTouch");
 
