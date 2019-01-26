@@ -44,13 +44,27 @@ public class GyroStraightener extends LinearOpMode {
         // op mode starts here
         gyroTurn(0.6,robot.getHeading()+90, 0.015);
         sleep(1000);
+        gyroTurn(0.6,robot.getHeading()+180,0.015);
+        sleep(1000);
+        gyroTurn(0.6,robot.getHeading()-90,0.015);
+        sleep(1000);
+        gyroTurn(0.6,robot.getHeading()-45,0.015);
+        sleep(1000);
         gyroTurn(0.6,robot.getHeading()+90,0.015);
         sleep(1000);
         gyroTurn(0.6,robot.getHeading()-90,0.015);
         sleep(1000);
-        gyroTurn(0.6,robot.getHeading()-90,0.015);
+        gyroTurn(0.6,robot.getHeading()-180,0.015);
         sleep(1000);
-        gyroTurn(0.6,robot.getHeading()+90,0.015);
+        gyroTurn(0.6,robot.getHeading()+30,0.015);
+        sleep(1000);
+        gyroTurn(0.6,robot.getHeading()+45,0.015);
+        sleep(1000);
+        gyroTurn(0.6,robot.getHeading()-45,0.015);
+
+
+
+        
 
         //encoderDrive(0.4,10,30,true,robot.getHeading(),true,true,0);
     }

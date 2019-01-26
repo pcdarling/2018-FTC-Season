@@ -26,11 +26,13 @@ public class GyroStraightener extends LinearOpMode {
     static final double P_DRIVE_COEFF_1 = 0.01;  // Larger is more responsive, but also less accurate
     static final double P_DRIVE_COEFF_2 = 0.25;  // Intenionally large so robot "wiggles" around the target setpoint while driving
     double wheelBassQuestionMark = 6;
+    double gyroCoEff = 0.03;
 
     double degreesTraveled = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
+        int rotationSpeed = 1;
         robot.imuInit(hardwareMap);
         robot.init(hardwareMap);
         sleep(50);
@@ -42,15 +44,29 @@ public class GyroStraightener extends LinearOpMode {
         robot.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
         // op mode starts here
-        gyroTurn(0.6,robot.getHeading()+90, 0.015);
+        gyroTurn(0.6,robot.getHeading()+90, gyroCoEff);
         sleep(1000);
-        gyroTurn(0.6,robot.getHeading()+90,0.015);
+        gyroTurn(0.6,robot.getHeading()+180,gyroCoEff);
         sleep(1000);
-        gyroTurn(0.6,robot.getHeading()-90,0.015);
+        gyroTurn(0.6,robot.getHeading()-90,gyroCoEff);
         sleep(1000);
-        gyroTurn(0.6,robot.getHeading()-90,0.015);
+        gyroTurn(0.6,robot.getHeading()-45,gyroCoEff);
         sleep(1000);
-        gyroTurn(0.6,robot.getHeading()+90,0.015);
+        gyroTurn(0.6,robot.getHeading()+90,gyroCoEff);
+        sleep(1000);
+        gyroTurn(0.6,robot.getHeading()-90,gyroCoEff);
+        sleep(1000);
+        gyroTurn(0.6,robot.getHeading()-180,gyroCoEff);
+        sleep(1000);
+        gyroTurn(0.6,robot.getHeading()+30,gyroCoEff);
+        sleep(1000);
+        gyroTurn(0.6,robot.getHeading()+45,gyroCoEff);
+        sleep(1000);
+        gyroTurn(0.6,robot.getHeading()-45,gyroCoEff);
+
+
+
+
 
         //encoderDrive(0.4,10,30,true,robot.getHeading(),true,true,0);
     }
@@ -248,6 +264,7 @@ public class GyroStraightener extends LinearOpMode {
         while (opModeIsActive() && !onHeading(speed, angle, coefficient)) {
             // Allow time for other processes to run.
             // onHeading() does the work of turning us
+            telemetry.addLine("Doing GyroTurn: " + angle );
             telemetry.update();
             sleep(1);
         }
@@ -288,10 +305,10 @@ public class GyroStraightener extends LinearOpMode {
             steer = getSteer(error, PCoeff);
             rightSpeed = speed * steer;
             leftSpeed = -rightSpeed;
-           /* telemetry.addData("rightSpeed", rightSpeed);
+            telemetry.addData("rightSpeed", rightSpeed);
             telemetry.addData("leftSpeed",leftSpeed);
             telemetry.addData("Steer:" , steer);
-            telemetry.update();*/
+            telemetry.update();
         }
 
         // Send desired speeds to motors.
@@ -349,7 +366,6 @@ public class GyroStraightener extends LinearOpMode {
     }
 
  /*   void composeTelemetry() {
-
         // At the beginning of each telemetry update, grab a bunch of data
         // from the IMU that we will then display in separate lines.
         telemetry.addAction(new Runnable() {
@@ -362,7 +378,6 @@ public class GyroStraightener extends LinearOpMode {
                 robot.gravity = robot.imu.getGravity();
             }
         });
-
         telemetry.addLine()
                 .addData("status", new Func<String>() {
                     @Override
@@ -376,7 +391,6 @@ public class GyroStraightener extends LinearOpMode {
                         return robot.imu.getCalibrationStatus().toString();
                     }
                 });
-
         telemetry.addLine()
                 .addData("heading", new Func<String>() {
                     @Override
@@ -396,7 +410,6 @@ public class GyroStraightener extends LinearOpMode {
                         return formatAngle(robot.angles.angleUnit, robot.angles.thirdAngle);
                     }
                 });
-
         telemetry.addLine()
                 .addData("grvty", new Func<String>() {
                     @Override

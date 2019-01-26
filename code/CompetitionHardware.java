@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.hardware.Camera;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.vuforia.CameraDevice;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
@@ -50,24 +53,23 @@ public class CompetitionHardware {
     double robotCircumference = Math.PI*robotDiameter;
 
     // Measured variables in inches
-    double distanceToSamples = 20; // was 26.5
-    double distanceFromDepotToCrater = 93;
-    double distanceToDepot = 59;
-    double distanceToAvoidMineral = 41;
+    double distanceToSamples = 16.35; // was 26.5
+    double distanceFromDepotToCrater = 78;
+    double distanceToDepot = 49;
+    double distanceToAvoidMineral = 46;
 
     // The Evan variables
-    int theEvanMax = -59;
+    int theEvanMax = -4408; // 4408
 
     // Team Marker variables
-    double storePos = 0.4;
-    double ejectPos = 0.05;
+    double storePos = 0.44;
+    double ejectPos = 0.09;
     boolean tm_isEjected = false;
 
     // Phone Servo Variables
-    double phoneStartPos = 0.07;
-    double phoneCenterPos = 0.2;
-    double phoneSamplePos = 0.33;
-    double phoneEndPos = 0.62;
+    double phoneFrontPos = 0.68;
+    double phoneMidPos = 0.25;
+    double phonePicturePos = 0;
 
     // Vuforia Variables
     int location = -1;
@@ -89,7 +91,7 @@ public class CompetitionHardware {
     HardwareMap hwmap = null;
 
     // Thread Objects
-    //LocationThread lt;
+    LocationThread lt;
     DriveThread dt;
     EvanThread et;
     MarkerThread mt;
@@ -120,6 +122,8 @@ public class CompetitionHardware {
             VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
             parameters.vuforiaLicenseKey = "AYOeonr/////AAABmSirnJnvQUnelw5JOBSA3YZQx9wGb22naoaPA/2nWtFxpJiRrDY3NzvoKMTH6zRjy4eYcbHgabgNIwD7OaOLfQM5ZlLV5rmsHwdUkUN1aC8m2nNPlESStk9Ud1pvewjIfQCx1uBqAnRrBQmGFvxnHa6LNbS+eGIVt2/dmTuwUK+WZ5Yn4e0BDO5YlcOiiGEujAmqO+3O1p8a1YM+QHA/Bk7sCnM1hx8pYDT7Qp93jemP3plVOEC3hsEki1xMMBOpp6yip/XR4zX8nFRAT0sZqI7/s50EcuUcXEbPy1Fdv6r0gJZXzsmYm8qA2SLKpinCAd5EvKs6qlaiEFfuFgBplAGW7f6Yg5C1mdjOImQxJhxC";//license key here
             parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+            //
+
 
             vuforia = ClassFactory.getInstance().createVuforia(parameters);
             targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
@@ -132,14 +136,16 @@ public class CompetitionHardware {
             backSpace = targetsRoverRuckus.get(3);
             backSpace.setName("Back-Space");
             allTrackables.addAll(targetsRoverRuckus);
+            CameraDevice.getInstance().setFlashTorchMode(true);
         }
 
         // The Evan init
         theEvan = hwmap.get(DcMotor.class, "lift");
+        theEvan.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         theEvan.setDirection(DcMotorSimple.Direction.FORWARD);
-        theEvan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         theEvan.setPower(0);
         theEvan.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        theEvan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Marker Deployer init
         markerMover = hwmap.get(Servo.class, "marker");
@@ -147,11 +153,11 @@ public class CompetitionHardware {
 
         // Phone Servo init
         phoneServo = hwmap.get(Servo.class, "phone_servo");
-        phoneServo.setPosition(phoneStartPos);
+        phoneServo.setPosition(phonePicturePos);
 
         // Initialize threads just in case
         //createLocationThread();
-        createDriveThread(0,0);
+        //createDriveThread(0,0);
         createMarkerThread();
         createEvanThread(0);
     }
@@ -300,9 +306,9 @@ public class CompetitionHardware {
         dt = new DriveThread(power,degrees,true);
     }
 
-    /*public void createLocationThread() {
+    public void createLocationThread() {
         lt = new LocationThread();
-    }*/
+    }
 
     public void createMarkerThread() {
         mt = new MarkerThread();
@@ -334,8 +340,6 @@ public class CompetitionHardware {
                 this.driveInInches(this.power, this.inchesOrDegress, false);
             } else if (this.rotation == 1) {
                 this.rotateInDegrees(this.power, this.inchesOrDegress);
-
-
             }
         }
 
@@ -422,16 +426,16 @@ public class CompetitionHardware {
             while (!targetSeen) {
                 for (VuforiaTrackable trackable : allTrackables) {
                     if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
-                        if (trackable.getName() == "Blue-Rover") { // South West
+                        if (trackable.getName() == "Front-Craters") { // South West
                             location = 0;
                         }
-                        if (trackable.getName() == "Back-Space") { // South East
+                        if (trackable.getName() == "Red-Footprint") { // South East
                             location = 1;
                         }
-                        if (trackable.getName() == "Front-Craters") { // North West
+                        if (trackable.getName() == "Blue-Rover") { // North West
                             location = 2;
                         }
-                        if (trackable.getName() == "Red-Footprint") { // North East
+                        if (trackable.getName() == "Back-Space") { // North East
                             location = 3;
                         }
                         targetSeen = true;
@@ -442,6 +446,7 @@ public class CompetitionHardware {
                 }
             }
             targetsRoverRuckus.deactivate();
+            CameraDevice.getInstance().setFlashTorchMode(false);
 
             return location;
         }
@@ -449,6 +454,7 @@ public class CompetitionHardware {
 
     public class EvanThread extends Thread{
         double power;
+        int encoderCount = theEvan.getCurrentPosition();
         public EvanThread(double power){
             this.power = power;
         }
@@ -461,16 +467,14 @@ public class CompetitionHardware {
             }
         }
         public void moveTheEvan(double power) {
-            int encoderCount = theEvan.getCurrentPosition();
-            if (Math.abs(power) < thresh){ // Stop!!
+            theEvan.setPower(power);
+            while(true) {
+                encoderCount = theEvan.getCurrentPosition();
+                if (Math.abs(power) < thresh) {break;}
+                else if (power < 0 && encoderCount <= theEvanMax) {break;}
+                else if (power > 0 && encoderCount >= 0) {break;}
             }
-            else if (power < 0 && encoderCount <= theEvanMax){ // Stop!!
-            }
-            else if (power > 0 && encoderCount >= 0){ // Stop!!
-            }
-            else {
-                theEvan.setPower(power);
-            }
+            theEvan.setPower(0);
         }
     }
 
@@ -499,18 +503,26 @@ public class CompetitionHardware {
     }
 
     // TODO: THIS IS NOT USED. IF YOU WANNA TEST SAMPLING THE MINERALS, THEN PUT THIS SOMEWHERE IN AUTO
-    public void scanPhone(int position) {
-        if (position == 0) {
-            phoneServo.setPosition(phoneStartPos);
-        } else if (position == 1) {
-            phoneServo.setPosition(phoneCenterPos);
-        } else if (position == 2) {
-            phoneServo.setPosition(phoneSamplePos);
-        } else if (position == 3){
-            phoneServo.setPosition(phoneEndPos);
-        } else {
-            phoneServo.setPosition(phoneStartPos);
+    public void scanPhone() {
+        boolean min = false;
+        if (phoneServo.getPosition() <= phonePicturePos){
+            min = true;
         }
+        else if (phoneServo.getPosition() >= phoneFrontPos){
+            min = false;
+        }
+       if (min){
+           phoneServo.setPosition(phoneServo.getPosition() +0.01);
+       }
+       else{
+           phoneServo.setPosition(phoneServo.getPosition() -0.01);
+       }
+    }
+
+    // TODO: Implement this, Brandon
+    public int findGold() {
+        // -1: Can't find Gold; 0: Left; 1: Middle; 2: Right
+        return -1;
     }
 
 }
