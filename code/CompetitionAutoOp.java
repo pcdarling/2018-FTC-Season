@@ -114,12 +114,17 @@ public class CompetitionAutoOp extends LinearOpMode{
             robot.createLocationThread();
             robot.lt.start();
 
-            encoderDrive(0.2, robot.distanceToAvoidMineral, 30, true, robot.getHeading(), true, true, 0);
+            encoderDrive(0.2, robot.distanceToAvoidMineral * 0.75, 30, true, robot.getHeading(), true, true, 0);
             startTimer();
             while (runtime.seconds() < 2) {
                 //idle time
+                robot.scanPhone();
+                sleep(50);
             }
+            encoderDrive(0.2, robot.distanceToAvoidMineral * 0.25, 30, true, robot.getHeading(), true, true,  0);
         }
+
+
 
 
         if (opModeIsActive()) {
@@ -170,7 +175,7 @@ public class CompetitionAutoOp extends LinearOpMode{
             while (runtime.seconds() < 2) {
                 //stop...
             }
-            gyroTurn(0.8,robot.getHeading()-(Math.signum(rotatePower)*9),0.03);
+            gyroTurn(0.8,robot.getHeading()-(Math.signum(rotatePower)*7),0.03);
 
             //the potential "we can't get the robot to not hit the other team's samples" turn
             //gyroTurn(0.2,-90,gyroCoeff90)

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.hardware.Camera;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.vuforia.CameraDevice;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
@@ -51,7 +54,7 @@ public class CompetitionHardware {
 
     // Measured variables in inches
     double distanceToSamples = 16.35; // was 26.5
-    double distanceFromDepotToCrater = 85;
+    double distanceFromDepotToCrater = 78;
     double distanceToDepot = 49;
     double distanceToAvoidMineral = 46;
 
@@ -119,6 +122,8 @@ public class CompetitionHardware {
             VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
             parameters.vuforiaLicenseKey = "AYOeonr/////AAABmSirnJnvQUnelw5JOBSA3YZQx9wGb22naoaPA/2nWtFxpJiRrDY3NzvoKMTH6zRjy4eYcbHgabgNIwD7OaOLfQM5ZlLV5rmsHwdUkUN1aC8m2nNPlESStk9Ud1pvewjIfQCx1uBqAnRrBQmGFvxnHa6LNbS+eGIVt2/dmTuwUK+WZ5Yn4e0BDO5YlcOiiGEujAmqO+3O1p8a1YM+QHA/Bk7sCnM1hx8pYDT7Qp93jemP3plVOEC3hsEki1xMMBOpp6yip/XR4zX8nFRAT0sZqI7/s50EcuUcXEbPy1Fdv6r0gJZXzsmYm8qA2SLKpinCAd5EvKs6qlaiEFfuFgBplAGW7f6Yg5C1mdjOImQxJhxC";//license key here
             parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+            //
+
 
             vuforia = ClassFactory.getInstance().createVuforia(parameters);
             targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
@@ -131,6 +136,7 @@ public class CompetitionHardware {
             backSpace = targetsRoverRuckus.get(3);
             backSpace.setName("Back-Space");
             allTrackables.addAll(targetsRoverRuckus);
+            CameraDevice.getInstance().setFlashTorchMode(true);
         }
 
         // The Evan init
@@ -440,6 +446,7 @@ public class CompetitionHardware {
                 }
             }
             targetsRoverRuckus.deactivate();
+            CameraDevice.getInstance().setFlashTorchMode(false);
 
             return location;
         }
@@ -496,14 +503,20 @@ public class CompetitionHardware {
     }
 
     // TODO: THIS IS NOT USED. IF YOU WANNA TEST SAMPLING THE MINERALS, THEN PUT THIS SOMEWHERE IN AUTO
-    public void scanPhone(int position) {
-        if (position == 0) {
-            phoneServo.setPosition(phoneFrontPos);
-        } else if (position == 1) {
-            phoneServo.setPosition(phonePicturePos);
-        } else {
-            phoneServo.setPosition(phoneFrontPos);
+    public void scanPhone() {
+        boolean min = false;
+        if (phoneServo.getPosition() <= phonePicturePos){
+            min = true;
         }
+        else if (phoneServo.getPosition() >= phoneFrontPos){
+            min = false;
+        }
+       if (min){
+           phoneServo.setPosition(phoneServo.getPosition() +0.01);
+       }
+       else{
+           phoneServo.setPosition(phoneServo.getPosition() -0.01);
+       }
     }
 
     // TODO: Implement this, Brandon
