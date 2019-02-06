@@ -20,12 +20,13 @@ public class CompetitionAutoOp extends LinearOpMode{
     CompetitionHardware robot = new CompetitionHardware(true);
     public GyroAnalysis gyroErrorAvg = new GyroAnalysis(30, 0 );
     private ElapsedTime runtime = new ElapsedTime();
-    static final double P_DRIVE_COEFF_1 = 0.013;  // Larger is more responsive, but also less accurate; 0.01 was the original number here
-    static final double P_DRIVE_COEFF_2 = 0.01;  // Intenionally large so robot "wiggles" around the target setpoint while driving
+    static final double P_DRIVE_COEFF_1 = 0.01;  // Larger is more responsive, but also less accurate; 0.01 was the original number here
+    static final double P_DRIVE_COEFF_2 = 0.013;  // Intenionally large so robot "wiggles" around the target setpoint while driving
 
     double gyroCoef90 = 0.008;
     double gyroCoef45 = 0.015;
     double gyroCoef135 = 0.005;
+    double gyroCoef7 = 0.022;
     double evanPower = 0.5;
 
     int HEADING_THRESHOLD = 5;
@@ -93,9 +94,9 @@ public class CompetitionAutoOp extends LinearOpMode{
 
         // Move until near samples
         if (opModeIsActive()) {
-            encoderDrive(0.2, robot.distanceToSamples, 30, true, robot.getHeading(), false, true, 0);
+            encoderDrive(0.2, robot.distanceToSamples, 30, true, robot.getHeading(), P_DRIVE_COEFF_2);
             startTimer();
-            while (runtime.seconds() < 2) {
+            while (runtime.seconds() < 1) {
                 // allow time for things to stop
             }
         }
@@ -103,92 +104,166 @@ public class CompetitionAutoOp extends LinearOpMode{
         if (opModeIsActive()) {
             gyroTurn(0.5, robot.getHeading() + 90, gyroCoef90);
             startTimer();
-            while (runtime.seconds() < 2) {
+            while (runtime.seconds() < 1) {
                 //idle time
             }
         }
-        robot.phoneServo.setPosition(robot.phoneFrontPos);
+        robot.phoneServo.setPosition(robot.phoneInPos);
 
         // driving away from sliver
         if (opModeIsActive()) {
             robot.createLocationThread();
             robot.lt.start();
 
-            encoderDrive(0.2, robot.distanceToAvoidMineral * 0.75, 30, true, robot.getHeading(), true, true, 0);
+//            encoderDrive(0.2, robot.distanceToAvoidMineral * 0.75, 30, true, robot.getHeading(), true, true, 0);
+//            startTimer();
+//            while (runtime.seconds() < 2 && robot.location != -1) {
+//                //idle time
+//                robot.scanPhone();
+//                sleep(50);
+//            }
+//            robot.phoneServo.setPosition(robot.phoneInPos);
+//            encoderDrive(0.2, robot.distanceToAvoidMineral * 0.25, 30, true, robot.getHeading(), true, true,  0);
+            encoderDrive(0.4, robot.distanceToAvoidMineral * 0.60, 30, true, robot.getHeading(), P_DRIVE_COEFF_2);
+        }
+
+        if (opModeIsActive() && robot.location == -1) {
+            gyroTurn(0.5, robot.getHeading() - 45, gyroCoef45);
             startTimer();
-            while (runtime.seconds() < 2) {
-                //idle time
-                robot.scanPhone();
-                sleep(50);
+            while (runtime.seconds() < 1) {
+                // idle time
             }
-            encoderDrive(0.2, robot.distanceToAvoidMineral * 0.25, 30, true, robot.getHeading(), true, true,  0);
+            if (opModeIsActive()){
+                gyroTurn(0.5, robot.getHeading() + 40, gyroCoef45);
+            }
+            if (opModeIsActive()){
+                //not exactly 100%, but the robot will come up short otherwise
+                encoderDrive(0.4, robot.distanceToAvoidMineral * 0.52, 30, true, robot.getHeading(), P_DRIVE_COEFF_2);
+            }
+        }else{
+            if (opModeIsActive()){
+                encoderDrive(0.4, robot.distanceToAvoidMineral * 0.45, 30, true, robot.getHeading(), P_DRIVE_COEFF_2);
+            }
         }
 
 
-
-
+        //TODO: THE LAST TURN FOR AUTONOMOUS SEEMS TO BE NO LONGER NECESSARY; TAKE IT OUT ASAP.
         if (opModeIsActive()) {
             if (robot.location == 0) {
                 // SW
-                allTheWays(0.8, -0.2,45,gyroCoef45); //  I did have a problem with handling InterruptedException here, I just took java's suggestion to
-                // "add exception to method signature"
+                theAllWays(true);
             } else if (robot.location == 1) {
                 // SE
-                allTheWays(-0.8, -0.2,135,gyroCoef135);
+                theAllWays(false);
             } else if (robot.location == 2) {
                 // NW
-                allTheWays(-0.8, -0.2,135,gyroCoef135);
+                theAllWays(false);
             } else if (robot.location == 3) {
                 // NE
-                allTheWays(0.8, -0.2,45,gyroCoef45);
+                theAllWays(true);
             }
         }
 
 
     }
 
-    public void allTheWays(double rotatePower, double linearPower,double degrees,double gyroCoef) {
-
+    public void theAllWays(boolean depot) {
         //turing to the depot
-        if (opModeIsActive()) {
-            gyroTurn(Math.abs(rotatePower), robot.getHeading() + Math.signum(rotatePower) * degrees, gyroCoef);
-            startTimer();
-            while (runtime.seconds() < 2) {
-                //idle time
+        if (depot){
+            if (opModeIsActive()) {
+                gyroTurn(Math.abs(0.8), robot.getHeading() + 40, gyroCoef45);
+                startTimer();
+                while (runtime.seconds() < 1) {
+                    //idle time
+                }
             }
-        }
 
-        // going to the depot
-        if (opModeIsActive()) {
-            encoderDrive(0.35, Math.signum(linearPower) * robot.distanceToDepot, 30, true, robot.getHeading(), false, true, 0);
-            startTimer();
-            while (runtime.seconds() < 2) {
-                // idle time
+            // going to the depot
+            if (opModeIsActive()) {
+                encoderDrive(0.35, -robot.distanceToDepot, 30, true, robot.getHeading(), 0.005);
+                startTimer();
+                while (runtime.seconds() < 1) {
+                    // idle time
+                }
             }
-        }
 
-        //here would be the code for dropping the team marker, but the team marker dropper doesn't exist physically yet, so
-        // placing team marker
-        if (opModeIsActive()) {
-            robot.markerMover.setPosition(robot.ejectPos);
-            startTimer();
-            while (runtime.seconds() < 2) {
-                //stop...
+            //here would be the code for dropping the team marker, but the team marker dropper doesn't exist physically yet, so
+            // placing team marker
+            if (opModeIsActive()) {
+                robot.markerMover.setPosition(robot.ejectPos);
+                startTimer();
+                while (runtime.seconds() < 2) {
+                    //stop...
+                }
+                //gyroTurn(0.8,robot.getHeading()-(Math.signum(rotatePower)*7),0.03);
+
+                //the potential "we can't get the robot to not hit the other team's samples" turn
+                //gyroTurn(0.2,-90,gyroCoeff90)
             }
-            gyroTurn(0.8,robot.getHeading()-(Math.signum(rotatePower)*7),0.03);
-
-            //the potential "we can't get the robot to not hit the other team's samples" turn
-            //gyroTurn(0.2,-90,gyroCoeff90)
-        }
-
-        // Drive towards crater (Hammer time!)
-        if (opModeIsActive()) {
-            if (linearPower > 0) {
-                encoderDrive(0.6, -robot.distanceFromDepotToCrater, 30, true, robot.getHeading(), false, true, 0);
-            } else {
-                encoderDrive(0.6, robot.distanceFromDepotToCrater, 30, true, robot.getHeading(), false, true, 0);
+            //WIGGLES after dropping the marker
+            if (opModeIsActive()) {
+                gyroTurn(Math.abs(0.8), robot.getHeading() - 7, gyroCoef7);
+                startTimer();
+                while (runtime.seconds() < 1) {
+                    //idle time
+                }
             }
-            robot.markerMover.setPosition(robot.storePos);
+
+            // Drive towards crater (Hammer time!)
+            if (opModeIsActive()) {
+
+                encoderDrive(0.6, robot.distanceFromDepotToCrater, 30, true, robot.getHeading(), 0.005);
+
+                robot.markerMover.setPosition(robot.storePos);
+            }
+        } else {
+
+            if (opModeIsActive()) {
+                gyroTurn(Math.abs(-0.8), robot.getHeading() - 135, gyroCoef135);
+                startTimer();
+                while (runtime.seconds() < 1) {
+                    //idle time
+                }
+            }
+
+            // going to the depot
+            if (opModeIsActive()) {
+                encoderDrive(0.35, -robot.distanceToDepot*0.7, 30, true, robot.getHeading(), P_DRIVE_COEFF_1);
+                startTimer();
+                while (runtime.seconds() < 1) {
+                    // idle time
+                }
+            }
+
+            //here would be the code for dropping the team marker, but the team marker dropper doesn't exist physically yet, so
+            // placing team marker
+            if (opModeIsActive()) {
+                robot.markerMover.setPosition(robot.ejectPos);
+                startTimer();
+                while (runtime.seconds() < 2) {
+                    //stop...
+                }
+                //gyroTurn(0.8,robot.getHeading()-(Math.signum(rotatePower)*7),0.03);
+
+                //the potential "we can't get the robot to not hit the other team's samples" turn
+                //gyroTurn(0.2,-90,gyroCoeff90)
+            }
+            //WIGGLES after dropping the marker
+            if (opModeIsActive()) {
+                gyroTurn(Math.abs(0.8), robot.getHeading() + 8, gyroCoef7);
+                startTimer();
+                while (runtime.seconds() < 1) {
+                    //idle time
+                }
+            }
+
+            // Drive towards crater (Hammer time!)
+            if (opModeIsActive()) {
+
+                encoderDrive(0.6, robot.distanceFromDepotToCrater+8, 30, true, robot.getHeading(), 0.005);
+
+                robot.markerMover.setPosition(robot.storePos);
+            }
         }
     }
 
@@ -203,9 +278,7 @@ public class CompetitionAutoOp extends LinearOpMode{
                              double timeout,
                              boolean useGyro,
                              double heading,
-                             boolean aggressive,
-                             boolean userange,
-                             double maintainRange) {
+                             double gyroCoeff) {
 
         // Calculated encoder targets
         int newLFTarget;
@@ -226,7 +299,7 @@ public class CompetitionAutoOp extends LinearOpMode{
 
             RobotLog.i("DM10337- Starting encoderDrive speed:" + speed +
                     "  distance:" + distance + "  timeout:" + timeout +
-                    "  useGyro:" + useGyro + " heading:" + heading + "  maintainRange: " + maintainRange);
+                    "  useGyro:" + useGyro + " heading:" + heading);
 
             // Calculate "adjusted" distance  for each side to account for requested turn during run
             // Purpose of code is to have PIDs closer to finishing even on curved moves
@@ -317,8 +390,7 @@ public class CompetitionAutoOp extends LinearOpMode{
 
                     updateGyroErrorAvg(error);
 
-                    double steer = getSteer(error,
-                            (aggressive ? P_DRIVE_COEFF_2 : P_DRIVE_COEFF_1));
+                    double steer = getSteer(error, gyroCoeff);
 
                     // if driving in reverse, the motor correction also needs to be reversed
                     if (distance < 0)
