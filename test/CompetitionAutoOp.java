@@ -131,6 +131,16 @@ public class CompetitionAutoOp extends LinearOpMode{
             gyroTurn(0.5, robot.getHeading() - 45, gyroCoef45);
             startTimer();
             while (runtime.seconds() < 1) {
+
+                //idle time
+            }
+            if (opModeIsActive()){
+                gyroTurn(0.5, robot.getHeading() + 45, gyroCoef45);
+            }
+            if (opModeIsActive()){
+                //not exactly 100%, but the robot will come up short otherwise
+                encoderDrive(0.4, robot.distanceToAvoidMineral * 0.40, 30, true, robot.getHeading(), P_DRIVE_COEFF_2);
+
                 // idle time
             }
             if (opModeIsActive()){
@@ -139,6 +149,7 @@ public class CompetitionAutoOp extends LinearOpMode{
             if (opModeIsActive()){
                 //not exactly 100%, but the robot will come up short otherwise
                 encoderDrive(0.4, robot.distanceToAvoidMineral * 0.52, 30, true, robot.getHeading(), P_DRIVE_COEFF_2);
+
             }
         }else{
             if (opModeIsActive()){
@@ -228,7 +239,11 @@ public class CompetitionAutoOp extends LinearOpMode{
 
             // going to the depot
             if (opModeIsActive()) {
+
+                encoderDrive(0.35, -robot.distanceToDepot, 30, true, robot.getHeading(), P_DRIVE_COEFF_1);
+
                 encoderDrive(0.35, -robot.distanceToDepot*0.7, 30, true, robot.getHeading(), P_DRIVE_COEFF_1);
+
                 startTimer();
                 while (runtime.seconds() < 1) {
                     // idle time
@@ -248,6 +263,8 @@ public class CompetitionAutoOp extends LinearOpMode{
                 //the potential "we can't get the robot to not hit the other team's samples" turn
                 //gyroTurn(0.2,-90,gyroCoeff90)
             }
+
+
             //WIGGLES after dropping the marker
             if (opModeIsActive()) {
                 gyroTurn(Math.abs(0.8), robot.getHeading() + 8, gyroCoef7);
@@ -257,10 +274,15 @@ public class CompetitionAutoOp extends LinearOpMode{
                 }
             }
 
+
             // Drive towards crater (Hammer time!)
             if (opModeIsActive()) {
 
+
+                encoderDrive(0.6, robot.distanceFromDepotToCrater, 30, true, robot.getHeading(), 0.005);
+
                 encoderDrive(0.6, robot.distanceFromDepotToCrater+8, 30, true, robot.getHeading(), 0.005);
+
 
                 robot.markerMover.setPosition(robot.storePos);
             }

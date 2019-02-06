@@ -16,8 +16,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+
+
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +33,9 @@ public class CompetitionHardware {
     public DcMotor theEvan;
     public Servo markerMover;
     IntakeHardware intake = new IntakeHardware();
+
     VuforiaHardware cam = new VuforiaHardware();
+
     public Servo phoneServo;
 
 
@@ -67,15 +72,22 @@ public class CompetitionHardware {
     boolean tm_isEjected = false;
 
     // Phone Servo Variables
+
+    double phoneOutPos = 0.11;
+    double phoneMidPos = 0.2;
+    double phoneInPos = 0.41;
     double phoneOutPos = 0.1;
     double phoneMidPos = 0.2;
     double phoneInPos = 0.4;
+
 
     // Vuforia Variables
     int location = -1;
     boolean targetSeen = false;
     boolean cameraStatus = false;
+
     int goldPos = -1;
+
 
     // Vuforia Objects
     VuforiaLocalizer vuforia;
@@ -86,10 +98,13 @@ public class CompetitionHardware {
     public VuforiaTrackable backSpace;
     public List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
 
+
+
     public TFObjectDetector tfod;
     public static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     public static final String LABEL_GOLD_MINERAL = "Gold Mineral"; // these were private
     public static final String LABEL_SILVER_MINERAL = "Silver Mineral";
+
 
     public ElapsedTime runtime = new ElapsedTime();
 
@@ -101,6 +116,7 @@ public class CompetitionHardware {
     DriveThread dt;
     EvanThread et;
     MarkerThread mt;
+
 
     // function vars that can't work within function
     boolean min;
@@ -127,7 +143,28 @@ public class CompetitionHardware {
 
         if (cameraStatus) {
             // vuforia targets
+
+            int cameraMonitorViewId = hwmap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmap.appContext.getPackageName());
+            VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+            parameters.vuforiaLicenseKey = "AYOeonr/////AAABmSirnJnvQUnelw5JOBSA3YZQx9wGb22naoaPA/2nWtFxpJiRrDY3NzvoKMTH6zRjy4eYcbHgabgNIwD7OaOLfQM5ZlLV5rmsHwdUkUN1aC8m2nNPlESStk9Ud1pvewjIfQCx1uBqAnRrBQmGFvxnHa6LNbS+eGIVt2/dmTuwUK+WZ5Yn4e0BDO5YlcOiiGEujAmqO+3O1p8a1YM+QHA/Bk7sCnM1hx8pYDT7Qp93jemP3plVOEC3hsEki1xMMBOpp6yip/XR4zX8nFRAT0sZqI7/s50EcuUcXEbPy1Fdv6r0gJZXzsmYm8qA2SLKpinCAd5EvKs6qlaiEFfuFgBplAGW7f6Yg5C1mdjOImQxJhxC";//license key here
+            parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+            parameters.fillCameraMonitorViewParent = true;
+
+            vuforia = ClassFactory.getInstance().createVuforia(parameters);
+            targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
+            blueRover = targetsRoverRuckus.get(0);
+            blueRover.setName("Blue-Rover");
+            redFootprint = targetsRoverRuckus.get(1);
+            redFootprint.setName("Red-Footprint");
+            frontCraters = targetsRoverRuckus.get(2);
+            frontCraters.setName("Front-Craters");
+            backSpace = targetsRoverRuckus.get(3);
+            backSpace.setName("Back-Space");
+            allTrackables.addAll(targetsRoverRuckus);
+            CameraDevice.getInstance().setFlashTorchMode(true);
+
             cam.init(hwmap);
+
         }
 
         // The Evan init
@@ -144,7 +181,11 @@ public class CompetitionHardware {
 
         // Phone Servo init
         phoneServo = hwmap.get(Servo.class, "phone_servo");
+
+        phoneServo.setPosition(phoneInPos);
+
         phoneServo.setPosition(phoneMidPos);
+
 
         // Initialize threads just in case
         //createLocationThread();
@@ -495,6 +536,10 @@ public class CompetitionHardware {
 
     // TODO: THIS IS NOT USED. IF YOU WANNA TEST SAMPLING THE MINERALS, THEN PUT THIS SOMEWHERE IN AUTO
     public void scanPhone() {
+
+        boolean min = false;
+
+
         if (phoneServo.getPosition() <= phoneOutPos){
             min = true;
         }
@@ -502,6 +547,19 @@ public class CompetitionHardware {
             min = false;
         }
        if (min){
+
+           phoneServo.setPosition(phoneServo.getPosition() +0.01);
+       }
+       else{
+           phoneServo.setPosition(phoneServo.getPosition() -0.01);
+       }
+    }
+
+    // TODO: Implement this, Brandon
+    public int findGold() {
+        // -1: Can't find Gold; 0: Left; 1: Middle; 2: Right
+        return -1;
+
            phoneServo.setPosition(phoneServo.getPosition() +0.05);
        }
        else{
@@ -547,6 +605,7 @@ public class CompetitionHardware {
                 }
             }
         }
+
     }
 
 }

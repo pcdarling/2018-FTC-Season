@@ -15,11 +15,19 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 import java.util.Locale;
 
-@Autonomous(name = "CompetitionAutoOp Whitsampleing", group = "CompetitionBot")
+
+@Autonomous(name = "CompetitionAutoOp with samples", group = "CompetitionBot")
 public class CompetitionAutoOpWithSampling extends LinearOpMode{
     CompetitionHardware robot = new CompetitionHardware(true);
     public GyroAnalysis gyroErrorAvg = new GyroAnalysis(30, 0 );
     private ElapsedTime runtime = new ElapsedTime();
+
+    static final double P_DRIVE_COEFF_1 = 0.01;  // Larger is more responsive, but also less accurate
+    static final double P_DRIVE_COEFF_2 = 0.25;  // Intenionally large so robot "wiggles" around the target setpoint while driving
+
+    double evanPower = 0.5;
+
+
     static final double P_DRIVE_COEFF_1 = 0.01;  // Larger is more responsive, but also less accurate; 0.01 was the original number here
     static final double P_DRIVE_COEFF_2 = 0.013;  // Intenionally large so robot "wiggles" around the target setpoint while driving
 
@@ -32,6 +40,7 @@ public class CompetitionAutoOpWithSampling extends LinearOpMode{
 
     int HEADING_THRESHOLD = 5;
 
+
     public void runOpMode() {
         robot.imuInit(hardwareMap);
         robot.init(hardwareMap);
@@ -43,7 +52,7 @@ public class CompetitionAutoOpWithSampling extends LinearOpMode{
             telemetry.update();
         }
 
-        /*
+
         // Lower Robot
         if (opModeIsActive()) {
             robot.createEvanThread(-evanPower);
@@ -57,7 +66,11 @@ public class CompetitionAutoOpWithSampling extends LinearOpMode{
 
         // Move away from hook
         if (opModeIsActive()) {
+
+            encoderDrive(0.2, -1, 30, true, robot.getHeading(), true, true, 0);
+
             encoderDrive(0.2, -4, 30, true, robot.getHeading(), true, true, 0);
+
             startTimer();
             while (runtime.seconds() < 2) {
                 //idle time
@@ -76,7 +89,11 @@ public class CompetitionAutoOpWithSampling extends LinearOpMode{
 
         // Go back to starting position
         if (opModeIsActive()) {
+
+            encoderDrive(0.2, 1, 30, true, robot.getHeading(), true, true, 0);
+
             encoderDrive(0.2, 4, 30, true, robot.getHeading(), true, true, 0);
+
             startTimer();
             while (runtime.seconds() < 2) {
                 //idle time
@@ -91,6 +108,41 @@ public class CompetitionAutoOpWithSampling extends LinearOpMode{
                 //idle time
             }
         }
+
+
+        // Wait until location is determined
+        if (opModeIsActive()) {
+            robot.createLocationThread();
+            robot.lt.start();
+            while (robot.lt.isAlive()) {
+                // Busy waiting
+            }
+        }
+
+        // Move until near samples
+        if (opModeIsActive()) {
+            encoderDrive(0.2, robot.distanceToSamples, 30, true, robot.getHeading(), true, true, 0);
+            startTimer();
+            while (runtime.seconds() < 2) {
+                // allow time for things to stop
+            }
+        }
+
+        if (opModeIsActive()) {
+            if (robot.location == 0) {
+                // SW
+                allTheWays(-0.5, -0.2); //  I did have a problem with handling InterruptedException here, I just took java's suggestion to
+                // "add exception to method signature"
+            } else if (robot.location == 1) {
+                // SE
+                allTheWays(-0.5, 0.2);
+            } else if (robot.location == 2) {
+                // NW
+                allTheWays(-0.5, 0.2);
+            } else if (robot.location == 3) {
+                // NE
+                allTheWays(-0.5, -0.2);
+
         */
         startTimer();
         while (runtime.seconds() < 2 && robot.goldPos == -1){
@@ -193,11 +245,74 @@ public class CompetitionAutoOpWithSampling extends LinearOpMode{
             } else if (robot.location == 3) {
                 // NE
                 theAllWays(true);
+
             }
         }
 
 
     }
+
+
+    public void allTheWays(double rotatePower, double linearPower) {
+
+
+
+        // turn to avoid silver
+        if (opModeIsActive()) {
+            gyroTurn(0.5, robot.getHeading() - 90, 0.015);
+            startTimer();
+            while (runtime.seconds() < 2) {
+                //idle time
+            }
+        }
+
+        // driving away from sliver
+        if (opModeIsActive()) {
+            encoderDrive(0.2, robot.distanceToAvoidMineral, 30, true, robot.getHeading(), true, true, 0);
+            startTimer();
+            while (runtime.seconds() < 2) {
+                //idle time
+            }
+        }
+
+        //turing to the depot
+        if (opModeIsActive()) {
+            gyroTurn(Math.abs(rotatePower), robot.getHeading() + Math.signum(rotatePower) * 45, 0.015);
+            startTimer();
+            while (runtime.seconds() < 2) {
+                //idle time
+            }
+        }
+
+        // going to the depot
+        if (opModeIsActive()) {
+            encoderDrive(Math.abs(linearPower), Math.signum(linearPower) * robot.distanceToDepot, 30, true, robot.getHeading(), true, true, 0);
+            startTimer();
+            while (runtime.seconds() < 2) {
+                // idle time
+            }
+        }
+
+        //here would be the code for dropping the team marker, but the team marker dropper doesn't exist physically yet, so
+        // placing team marker
+        if (opModeIsActive()) {
+            robot.markerMover.setPosition(robot.ejectPos);
+            startTimer();
+            while (runtime.seconds() < 2) {
+                //stop...
+            }
+            robot.markerMover.setPosition(robot.storePos);
+        }
+
+        // Drive towards crater (Hammer time!)
+        if (opModeIsActive()) {
+            if (linearPower > 0) {
+                encoderDrive(0.2, -robot.distanceFromDepotToCrater, 30, true, robot.getHeading(), true, true, 0);
+            } else {
+                encoderDrive(0.2, robot.distanceFromDepotToCrater, 30, true, robot.getHeading(), true, true, 0);
+            }
+        }
+
 
     public void theAllWays(boolean depot) {
         //turing to the depot
@@ -297,6 +412,7 @@ public class CompetitionAutoOpWithSampling extends LinearOpMode{
                 robot.markerMover.setPosition(robot.storePos);
             }
         }
+
     }
 
     public void startTimer(){
@@ -310,7 +426,13 @@ public class CompetitionAutoOpWithSampling extends LinearOpMode{
                              double timeout,
                              boolean useGyro,
                              double heading,
+
+                             boolean aggressive,
+                             boolean userange,
+                             double maintainRange) {
+
                              double gyroCoeff) {
+
 
         // Calculated encoder targets
         int newLFTarget;
@@ -331,7 +453,10 @@ public class CompetitionAutoOpWithSampling extends LinearOpMode{
 
             RobotLog.i("DM10337- Starting encoderDrive speed:" + speed +
                     "  distance:" + distance + "  timeout:" + timeout +
-                    "  useGyro:" + useGyro + " heading:" + heading);
+
+                    "  useGyro:" + useGyro + " heading:" + heading + "  maintainRange: " + maintainRange);
+                   "  useGyro:" + useGyro + " heading:" + heading);
+
 
             // Calculate "adjusted" distance  for each side to account for requested turn during run
             // Purpose of code is to have PIDs closer to finishing even on curved moves
@@ -422,7 +547,12 @@ public class CompetitionAutoOpWithSampling extends LinearOpMode{
 
                     updateGyroErrorAvg(error);
 
+
+                    double steer = getSteer(error,
+                            (aggressive ? P_DRIVE_COEFF_2 : P_DRIVE_COEFF_1));
+
                     double steer = getSteer(error, gyroCoeff);
+
 
                     // if driving in reverse, the motor correction also needs to be reversed
                     if (distance < 0)
@@ -515,6 +645,10 @@ public class CompetitionAutoOpWithSampling extends LinearOpMode{
      * @return
      */
     boolean onHeading(double speed, double angle, double PCoeff) {
+
+        int HEADING_THRESHOLD = 5;
+
+
         double error;
         double steer;
         boolean onTarget = false;
