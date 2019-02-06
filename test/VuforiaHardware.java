@@ -27,7 +27,7 @@ public class VuforiaHardware {
     //physical objects to detect
     public static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     public static final String LABEL_GOLD_MINERAL = "Gold Mineral"; // these were private
-    public static final String LABEL_SILVER_MINERAL = "Silver Mineral";
+   // public static final String LABEL_SILVER_MINERAL = "Silver Mineral"; took this out to prevent phone from checking silver mineral
 
     //position variables
     public int leftCount = 0;
@@ -71,7 +71,7 @@ public class VuforiaHardware {
                 "tfodMonitorViewId", "id", hwmap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL);
     }
     public void createSampleThread(){
         SampleThread st = new SampleThread();
@@ -80,7 +80,7 @@ public class VuforiaHardware {
     public class SampleThread extends Thread{
         public void run(){
             findGoldPos();
-            }
+        }
         public void findGoldPos(){
             if (tfod != null) {
                 tfod.activate();
@@ -131,7 +131,7 @@ public class VuforiaHardware {
                 }
             }
         }
-        }
+    }
 
     public void findGoldPos(){
         if (tfod != null) {
