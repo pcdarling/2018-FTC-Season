@@ -28,6 +28,7 @@ public class IntakeHardware {
 
         for (int i = 0; i < ITMotors.length; i++) {
             ITMotors[i] = ITHwMap.get(DcMotor.class, "ITMotor" + i);
+
             ITMotors[i].setDirection(DcMotor.Direction.FORWARD);
             ITMotors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             ITMotors[i].setPower(0);
