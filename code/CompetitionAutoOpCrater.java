@@ -18,6 +18,7 @@ public class CompetitionAutoOpCrater extends LinearOpMode {
     CompetitionHardware robot = new CompetitionHardware(true);
     public GyroAnalysis gyroErrorAvg = new GyroAnalysis(30, 0 );
     private ElapsedTime runtime = new ElapsedTime();
+    // higher coef is more less stable but more accurate
     static final double P_DRIVE_COEFF_1 = 0.01;  // Larger is more responsive, but also less accurate; 0.01 was the original number here
     static final double P_DRIVE_COEFF_2 = 0.013;  // ILinearOpModentenionally large so robot "wiggles" around the target setpoint while driving
 
@@ -26,76 +27,68 @@ public class CompetitionAutoOpCrater extends LinearOpMode {
     double gyroCoef135 = 0.005;
     double gyroCoef7 = 0.022;
     double evanPower = 0.5;
+    int fakeGold = 0;
 
-    int HEADING_THRESHOLD = 5;
+    double LINEAR_HEADING_THRESHOLD = 1;
+    double GYRO_HEADING_THRESHOLD = 3;
 
     public void runOpMode() {
         robot.imuInit(hardwareMap);
         robot.init(hardwareMap);
         sleep(50);
         runtime.reset();
+       // robot.evan.flipRobot(1, true);
 
         while(!isStarted()) {
             // Busy waiting
         }
-
         /*
-        // Lower Robot
-        if (opModeIsActive()) {
-            robot.createEvanThread(-evanPower);
-            robot.et.start();
-            while (robot.et.isAlive()) {
-                // Busy Waiting
-                telemetry.addData("Lift Pos: ",robot.theEvan.getCurrentPosition());
-                telemetry.update();
-            }
-        }
-
-        // Move away from hook
-        if (opModeIsActive()) {
-            encoderDrive(0.2, -4, 30, true, robot.getHeading(), true, true, 0);
-            startTimer();
-            while (runtime.seconds() < 2) {
-                //idle time
-            }
-        }
-
-        // Put the Evan back up
-        if (opModeIsActive()) {
-            robot.createEvanThread(evanPower);
-            robot.et.start();
-            while (robot.et.isAlive()) {
-                // Busy Waiting
-                // Could probably do without this busy waiting loop
-            }
-        }
-
-        // Go back to starting position
-        if (opModeIsActive()) {
-            encoderDrive(0.2, 4, 30, true, robot.getHeading(), true, true, 0);
-            startTimer();
-            while (runtime.seconds() < 2) {
-                //idle time
-            }
-        }
-
-        // Rotate to get ready to go forward
-        if (opModeIsActive()) {
-            gyroTurn(0.5, robot.getHeading() - 90, 0.015);
-            startTimer();
-            while (runtime.seconds() < 2) {
-                //idle time
-            }
-        }
-        */
-
+        // Getting the robot down
+       if (opModeIsActive()) {
+           robot.evan.flipRobot(-1, false);
+       }
+        // Freeing the robot
+       if (opModeIsActive()) {
+           robot.evan.latch(false);
+       }
+       // waiting
+        sleep(1000);
+       */
         // Move until near samples
         if (opModeIsActive()) {
-            encoderDrive(0.2, robot.distanceToSamples, 30, true, robot.getHeading(), P_DRIVE_COEFF_2);
+            encoderDrive(0.3, robot.distanceToSamples, 30, true, robot.getHeading(), 0.018);
             startTimer();
             while (runtime.seconds() < 1) {
                 // allow time for things to stop
             }
+            // sampling when its to the left
+                if (fakeGold == 0) {
+                gyroTurn(0.8, robot.getHeading() + 50, gyroCoef90);
+                encoderDrive(0.35, 6.5, 30, true, robot.getHeading(), gyroCoef135);
+                // undoing what we just did
+                encoderDrive(0.35, -6.5, 30, true, robot.getHeading(), gyroCoef135);
+                gyroTurn(0.8, robot.getHeading() - 50, gyroCoef90);
+                sleep(1000);
+            }
+            // sampling when its to the right
+            else if (fakeGold == 2) {
+                gyroTurn(0.8, robot.getHeading() - 50, gyroCoef90);
+                encoderDrive(0.35, 5, 30, true, robot.getHeading(), 0.005);
+                // undoing what we just did
+                encoderDrive(0.35, -5, 30, true, robot.getHeading(), 0.005);
+                gyroTurn(0.8, robot.getHeading() + 50, gyroCoef90);
+                sleep(1000);
+            }
+            //// sampling when its in front of you
+            else if (fakeGold == 1) {
+                encoderDrive(0.35, 5, 30, true, robot.getHeading(), 0.005);
+                // undoing what we just did
+                encoderDrive(0.35, -5, 30, true, robot.getHeading(), 0.005);
+                sleep(1000);
+            }
+            else {
+            }
+
         }
         // turn to avoid silver
         if (opModeIsActive()) {
@@ -105,7 +98,6 @@ public class CompetitionAutoOpCrater extends LinearOpMode {
                 //idle time
             }
         }
-        robot.misc.phoneServo.setPosition(robot.misc.phoneInPos);
 
         // driving away from sliver
         if (opModeIsActive()) {
@@ -197,7 +189,7 @@ public class CompetitionAutoOpCrater extends LinearOpMode {
             if (useGyro) {
                 // We are gyro steering -- are we requesting a turn while driving?
                 double headingChange = getError(curHeading) * Math.signum(distance);
-                if (Math.abs(headingChange) > 5.0) {
+                if (Math.abs(headingChange) > LINEAR_HEADING_THRESHOLD) {
                     //Heading change is significant enough to account for
                     if (headingChange > 0.0) {
                         // Assume 15.25 inch wheelbase
@@ -380,7 +372,7 @@ public class CompetitionAutoOpCrater extends LinearOpMode {
         // determine turn power based on +/- error
         error = getError(angle);
 
-        if (Math.abs(error) <= HEADING_THRESHOLD) {
+        if (Math.abs(error) <= GYRO_HEADING_THRESHOLD) {
             // Close enough so no need to move
             steer = 0.0;
             leftSpeed = 0.0;

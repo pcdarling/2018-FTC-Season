@@ -38,8 +38,10 @@ public class CompetitionAutoOp extends LinearOpMode{
         runtime.reset();
 
         while(!isStarted()) {
+            /*
             telemetry.addData("Lift Pos:",robot.theEvan.getCurrentPosition());
             telemetry.update();
+            */
         }
 
         /*
@@ -108,12 +110,12 @@ public class CompetitionAutoOp extends LinearOpMode{
                 //idle time
             }
         }
-        robot.phoneServo.setPosition(robot.phoneInPos);
+        robot.misc.phoneServo.setPosition(robot.misc.phoneInPos);
 
         // driving away from sliver
         if (opModeIsActive()) {
-            robot.createLocationThread();
-            robot.lt.start();
+            robot.cam.createLocationThread();
+            robot.cam.lt.start();
 
 //            encoderDrive(0.2, robot.distanceToAvoidMineral * 0.75, 30, true, robot.getHeading(), true, true, 0);
 //            startTimer();
@@ -127,7 +129,7 @@ public class CompetitionAutoOp extends LinearOpMode{
             encoderDrive(0.4, robot.distanceToAvoidMineral * 0.60, 30, true, robot.getHeading(), P_DRIVE_COEFF_2);
         }
 
-        if (opModeIsActive() && robot.location == -1) {
+        if (opModeIsActive() && robot.cam.location == -1) {
             gyroTurn(0.5, robot.getHeading() - 45, gyroCoef45);
             startTimer();
             while (runtime.seconds() < 1) {
@@ -149,16 +151,16 @@ public class CompetitionAutoOp extends LinearOpMode{
 
         //TODO: THE LAST TURN FOR AUTONOMOUS SEEMS TO BE NO LONGER NECESSARY; TAKE IT OUT ASAP.
         if (opModeIsActive()) {
-            if (robot.location == 0) {
+            if (robot.cam.location == 0) {
                 // SW
                 theAllWays(true);
-            } else if (robot.location == 1) {
+            } else if (robot.cam.location == 1) {
                 // SE
                 theAllWays(false);
-            } else if (robot.location == 2) {
+            } else if (robot.cam.location == 2) {
                 // NW
                 theAllWays(false);
-            } else if (robot.location == 3) {
+            } else if (robot.cam.location == 3) {
                 // NE
                 theAllWays(true);
             }
@@ -190,7 +192,7 @@ public class CompetitionAutoOp extends LinearOpMode{
             //here would be the code for dropping the team marker, but the team marker dropper doesn't exist physically yet, so
             // placing team marker
             if (opModeIsActive()) {
-                robot.markerMover.setPosition(robot.ejectPos);
+                robot.misc.markerMover.setPosition(robot.misc.ejectPos);
                 startTimer();
                 while (runtime.seconds() < 2) {
                     //stop...
@@ -214,7 +216,7 @@ public class CompetitionAutoOp extends LinearOpMode{
 
                 encoderDrive(0.6, robot.distanceFromDepotToCrater, 30, true, robot.getHeading(), 0.005);
 
-                robot.markerMover.setPosition(robot.storePos);
+                robot.misc.markerMover.setPosition(robot.misc.storePos);
             }
         } else {
 
@@ -238,7 +240,7 @@ public class CompetitionAutoOp extends LinearOpMode{
             //here would be the code for dropping the team marker, but the team marker dropper doesn't exist physically yet, so
             // placing team marker
             if (opModeIsActive()) {
-                robot.markerMover.setPosition(robot.ejectPos);
+                robot.misc.markerMover.setPosition(robot.misc.ejectPos);
                 startTimer();
                 while (runtime.seconds() < 2) {
                     //stop...
@@ -262,7 +264,7 @@ public class CompetitionAutoOp extends LinearOpMode{
 
                 encoderDrive(0.6, robot.distanceFromDepotToCrater+8, 30, true, robot.getHeading(), 0.005);
 
-                robot.markerMover.setPosition(robot.storePos);
+                robot.misc.markerMover.setPosition(robot.misc.storePos);
             }
         }
     }
@@ -327,33 +329,33 @@ public class CompetitionAutoOp extends LinearOpMode{
             }
 
             // Determine new target encoder positions, and pass to motor controller
-            newLFTarget = robot.motors[0].getCurrentPosition() + (int) (leftDistance * robot.countsPerInch);
-            newLRTarget = robot.motors[2].getCurrentPosition() + (int) (leftDistance * robot.countsPerInch);
-            newRFTarget = robot.motors[1].getCurrentPosition() + (int) (rightDistance * robot.countsPerInch);
-            newRRTarget = robot.motors[3].getCurrentPosition() + (int) (rightDistance * robot.countsPerInch);
+            newLFTarget = robot.drivetrain.motors[0].getCurrentPosition() + (int) (leftDistance * robot.drivetrain.countsPerInch);
+            newLRTarget = robot.drivetrain.motors[2].getCurrentPosition() + (int) (leftDistance * robot.drivetrain.countsPerInch);
+            newRFTarget = robot.drivetrain.motors[1].getCurrentPosition() + (int) (rightDistance * robot.drivetrain.countsPerInch);
+            newRRTarget = robot.drivetrain.motors[3].getCurrentPosition() + (int) (rightDistance * robot.drivetrain.countsPerInch);
 
-            while (robot.motors[0].getTargetPosition() != newLFTarget) {
-                robot.motors[0].setTargetPosition(newLFTarget);
+            while (robot.drivetrain.motors[0].getTargetPosition() != newLFTarget) {
+                robot.drivetrain.motors[0].setTargetPosition(newLFTarget);
                 sleep(1);
             }
-            while (robot.motors[1].getTargetPosition() != newRFTarget) {
-                robot.motors[1].setTargetPosition(newRFTarget);
+            while (robot.drivetrain.motors[1].getTargetPosition() != newRFTarget) {
+                robot.drivetrain.motors[1].setTargetPosition(newRFTarget);
                 sleep(1);
             }
-            while (robot.motors[2].getTargetPosition() != newLRTarget) {
-                robot.motors[2].setTargetPosition(newLRTarget);
+            while (robot.drivetrain.motors[2].getTargetPosition() != newLRTarget) {
+                robot.drivetrain.motors[2].setTargetPosition(newLRTarget);
                 sleep(1);
             }
-            while (robot.motors[3].getTargetPosition() != newRRTarget) {
-                robot.motors[3].setTargetPosition(newRRTarget);
+            while (robot.drivetrain.motors[3].getTargetPosition() != newRRTarget) {
+                robot.drivetrain.motors[3].setTargetPosition(newRRTarget);
                 sleep(1);
             }
 
             // Turn On motors to RUN_TO_POSITION
-            robot.motors[0].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.motors[1].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.motors[2].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.motors[3].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.drivetrain.motors[0].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.drivetrain.motors[1].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.drivetrain.motors[2].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.drivetrain.motors[3].setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             // reset the timeout time and start motion.
             robot.runtime.reset();
@@ -362,18 +364,18 @@ public class CompetitionAutoOp extends LinearOpMode{
             curSpeed = Math.min(MINSPEED, speed);
 
             // Set the motors to the starting power
-            robot.motors[0].setPower(Math.abs(curSpeed));
-            robot.motors[1].setPower(Math.abs(curSpeed));
-            robot.motors[2].setPower(Math.abs(curSpeed));
-            robot.motors[3].setPower(Math.abs(curSpeed));
+            robot.drivetrain.motors[0].setPower(Math.abs(curSpeed));
+            robot.drivetrain.motors[1].setPower(Math.abs(curSpeed));
+            robot.drivetrain.motors[2].setPower(Math.abs(curSpeed));
+            robot.drivetrain.motors[3].setPower(Math.abs(curSpeed));
 
             // keep looping while we are still active, and there is time left, until at least 1 motor reaches target
             while (opModeIsActive() &&
                     (robot.runtime.seconds() < timeout) &&
-                    robot.motors[0].isBusy() &&
-                    robot.motors[2].isBusy() &&
-                    robot.motors[1].isBusy() &&
-                    robot.motors[3].isBusy()) {
+                    robot.drivetrain.motors[0].isBusy() &&
+                    robot.drivetrain.motors[2].isBusy() &&
+                    robot.drivetrain.motors[1].isBusy() &&
+                    robot.drivetrain.motors[3].isBusy()) {
 
                 // Ramp up motor powers as needed
                 if (curSpeed < speed) {
@@ -410,10 +412,10 @@ public class CompetitionAutoOp extends LinearOpMode{
                 }
 
                 // And rewrite the motor speeds
-                robot.motors[0].setPower(Math.abs(leftSpeed));
-                robot.motors[1].setPower(Math.abs(rightSpeed));
-                robot.motors[2].setPower(Math.abs(leftSpeed));
-                robot.motors[3].setPower(Math.abs(rightSpeed));
+                robot.drivetrain.motors[0].setPower(Math.abs(leftSpeed));
+                robot.drivetrain.motors[1].setPower(Math.abs(rightSpeed));
+                robot.drivetrain.motors[2].setPower(Math.abs(leftSpeed));
+                robot.drivetrain.motors[3].setPower(Math.abs(rightSpeed));
 
                 // Allow time for other processes to run.
                 sleep(1);
@@ -422,25 +424,25 @@ public class CompetitionAutoOp extends LinearOpMode{
 
 
             RobotLog.i("DM10337- encoderDrive done" +
-                    "  lftarget: " + newLFTarget + "  lfactual:" + robot.motors[0].getCurrentPosition() +
-                    "  lrtarget: " + newLFTarget + "  lractual:" + robot.motors[2].getCurrentPosition() +
-                    "  rftarget: " + newRFTarget + "  rfactual:" + robot.motors[1].getCurrentPosition() +
-                    "  rrtarget: " + newRFTarget + "  rractual:" + robot.motors[3].getCurrentPosition() +
+                    "  lftarget: " + newLFTarget + "  lfactual:" + robot.drivetrain.motors[0].getCurrentPosition() +
+                    "  lrtarget: " + newLFTarget + "  lractual:" + robot.drivetrain.motors[2].getCurrentPosition() +
+                    "  rftarget: " + newRFTarget + "  rfactual:" + robot.drivetrain.motors[1].getCurrentPosition() +
+                    "  rrtarget: " + newRFTarget + "  rractual:" + robot.drivetrain.motors[3].getCurrentPosition() +
                     "  heading:" + readGyro());
 
             //  RobotLog.i("DM10337 - Gyro error average: " + gyroErrorAvg.average());
 
             // Stop all motion;
-            robot.motors[0].setPower(0);
-            robot.motors[2].setPower(0);
-            robot.motors[1].setPower(0);
-            robot.motors[3].setPower(0);
+            robot.drivetrain.motors[0].setPower(0);
+            robot.drivetrain.motors[2].setPower(0);
+            robot.drivetrain.motors[1].setPower(0);
+            robot.drivetrain.motors[3].setPower(0);
 
             // Turn off RUN_TO_POSITION
-            robot.motors[0].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.motors[2].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.motors[1].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.motors[3].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.drivetrain.motors[0].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.drivetrain.motors[2].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.drivetrain.motors[1].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.drivetrain.motors[3].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         }
     }
@@ -506,10 +508,10 @@ public class CompetitionAutoOp extends LinearOpMode{
         }
 
         // Send desired speeds to motors.
-        robot.motors[0].setPower(leftSpeed);
-        robot.motors[1].setPower(rightSpeed);
-        robot.motors[2].setPower(leftSpeed);
-        robot.motors[3].setPower(rightSpeed);
+        robot.drivetrain.motors[0].setPower(leftSpeed);
+        robot.drivetrain.motors[1].setPower(rightSpeed);
+        robot.drivetrain.motors[2].setPower(leftSpeed);
+        robot.drivetrain.motors[3].setPower(rightSpeed);
 
         return onTarget;
     }

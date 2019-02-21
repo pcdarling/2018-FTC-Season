@@ -67,28 +67,20 @@ public class CompetitionTeleOp extends OpMode{
             robot.drivetrain.FPSmovementByControl(Rx, Ly, rb);
         }
 
-
-        // Evan Controls
-        double evanPower;
-        if (rb) { // Turbo
-            evanPower = 1;
-        } else { // Precise
-            evanPower = 0.5;
-        }
-
         if (gamepad1.left_trigger > rtTresh) {
-            robot.evan.bicep.setPower(evanPower);
+            robot.evan.bicep.setPower(1);
         } else if (gamepad1.right_trigger > rtTresh) {
-            robot.evan.bicep.setPower(-evanPower);
+            robot.evan.bicep.setPower(-1);
         } else {
             robot.evan.bicep.setPower(0);
         }
-
+        // to closed
         if (buttonB) {
             robot.evan.latch(false);
         }
+        // to open
         if  (buttonX) {
-            robot.evan.latch(false);
+            robot.evan.latch(true);
         }
 
     }
@@ -131,26 +123,26 @@ public class CompetitionTeleOp extends OpMode{
             robot.intake.moveIntake(0,false,false);
         }
         //servo on the intake
-        if(xButton){
+        if(bButton){
             robot.intake.ITServo.setPosition(robot.intake.right);
         }
-        if(bButton){
+        if(xButton){
             robot.intake.ITServo.setPosition(robot.intake.left);
         }
-        if(yButton && bButton){
+        if(yButton){
             robot.intake.ITServo.setPosition(robot.intake.halfwayOpenBox);
         }
-        if(aButton && xButton){
+        if(aButton){
             robot.intake.ITServo.setPosition(robot.intake.openBox);
         }
         //servo to deploy larry
-        /*
-        if (gamepad2.y){
+
+        if (gamepad2.dpad_up){
             robot.misc.markerMover.setPosition(robot.misc.storePos);
         }
-        if (gamepad2.a){
+        if (gamepad2.dpad_down){
             robot.misc.markerMover.setPosition(robot.misc.ejectPos);
-        }*/
+        }
         /*if (gamepad2.dpad_down && !robot.mt.isAlive()){
             robot.createMarkerThread();
             robot.mt.start();

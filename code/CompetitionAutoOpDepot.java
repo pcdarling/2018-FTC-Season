@@ -26,68 +26,33 @@ public class CompetitionAutoOpDepot extends LinearOpMode {
     double gyroCoef135 = 0.005;
     double gyroCoef7 = 0.022;
     double evanPower = 0.5;
+    int fakeGold = 0;
 
-    int HEADING_THRESHOLD = 5;
+    double LINEAR_HEADING_THRESHOLD = 1;
+    double GYRO_HEADING_THRESHOLD = 5;
 
     public void runOpMode() {
         robot.imuInit(hardwareMap);
         robot.init(hardwareMap);
         sleep(50);
         runtime.reset();
+        //robot.evan.flipRobot(1, true);
 
         while(!isStarted()) {
             // Busy Waiting
         }
-
         /*
-        // Lower Robot
-        if (opModeIsActive()) {
-            robot.createEvanThread(-evanPower);
-            robot.et.start();
-            while (robot.et.isAlive()) {
-                // Busy Waiting
-                telemetry.addData("Lift Pos: ",robot.theEvan.getCurrentPosition());
-                telemetry.update();
-            }
-        }
-
-        // Move away from hook
-        if (opModeIsActive()) {
-            encoderDrive(0.2, -4, 30, true, robot.getHeading(), true, true, 0);
-            startTimer();
-            while (runtime.seconds() < 2) {
-                //idle time
-            }
-        }
-
-        // Put the Evan back up
-        if (opModeIsActive()) {
-            robot.createEvanThread(evanPower);
-            robot.et.start();
-            while (robot.et.isAlive()) {
-                // Busy Waiting
-                // Could probably do without this busy waiting loop
-            }
-        }
-
-        // Go back to starting position
-        if (opModeIsActive()) {
-            encoderDrive(0.2, 4, 30, true, robot.getHeading(), true, true, 0);
-            startTimer();
-            while (runtime.seconds() < 2) {
-                //idle time
-            }
-        }
-
-        // Rotate to get ready to go forward
-        if (opModeIsActive()) {
-            gyroTurn(0.5, robot.getHeading() - 90, 0.015);
-            startTimer();
-            while (runtime.seconds() < 2) {
-                //idle time
-            }
-        }
-        */
+        // Getting the robot down
+       if (opModeIsActive()) {
+           robot.evan.flipRobot(-1, true);
+       }
+        // Freeing the robot
+       if (opModeIsActive()) {
+           robot.evan.latch(false);
+       }
+       // waiting
+        sleep(1000);
+       */
 
         // Move until near samples
         if (opModeIsActive()) {
@@ -96,6 +61,30 @@ public class CompetitionAutoOpDepot extends LinearOpMode {
             while (runtime.seconds() < 1) {
                 // allow time for things to stop
             }
+        }
+        // sampling when its to the left
+        if (fakeGold == 0) {
+            gyroTurn(0.8, robot.getHeading() + 60, gyroCoef90);
+            encoderDrive(0.35, 2, 30, true, robot.getHeading(), 0.005);
+            // undoing what we just did
+            encoderDrive(0.35, -2, 30, true, robot.getHeading(), 0.005);
+            gyroTurn(0.8, robot.getHeading() - 60, gyroCoef90);
+        }
+        // sampling when its to the right
+        else if (fakeGold == 2) {
+            gyroTurn(0.8, robot.getHeading() - 60, gyroCoef90);
+            encoderDrive(0.35, 2, 30, true, robot.getHeading(), 0.005);
+            // undoing what we just did
+            encoderDrive(0.35, -2, 30, true, robot.getHeading(), 0.005);
+            gyroTurn(0.8, robot.getHeading() + 60, gyroCoef90);
+        }
+        //// sampling when its in front of you
+        else if (fakeGold == 1) {
+            encoderDrive(0.35, 2, 30, true, robot.getHeading(), 0.005);
+            // undoing what we just did
+            encoderDrive(0.35, -2, 30, true, robot.getHeading(), 0.005);
+        }
+        else {
         }
         // turn to avoid silver
         if (opModeIsActive()) {
@@ -197,7 +186,7 @@ public class CompetitionAutoOpDepot extends LinearOpMode {
             if (useGyro) {
                 // We are gyro steering -- are we requesting a turn while driving?
                 double headingChange = getError(curHeading) * Math.signum(distance);
-                if (Math.abs(headingChange) > 5.0) {
+                if (Math.abs(headingChange) > LINEAR_HEADING_THRESHOLD) {
                     //Heading change is significant enough to account for
                     if (headingChange > 0.0) {
                         // Assume 15.25 inch wheelbase
@@ -380,7 +369,7 @@ public class CompetitionAutoOpDepot extends LinearOpMode {
         // determine turn power based on +/- error
         error = getError(angle);
 
-        if (Math.abs(error) <= HEADING_THRESHOLD) {
+        if (Math.abs(error) <= GYRO_HEADING_THRESHOLD) {
             // Close enough so no need to move
             steer = 0.0;
             leftSpeed = 0.0;
