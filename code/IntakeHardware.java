@@ -15,9 +15,11 @@ public class IntakeHardware {
 
     HardwareMap ITHwMap = null;
     // IntakeServo
-    double openBox = 1;
-    double closeBox = 0;
-    double halfwayOpenBox = 0.5;
+    //TODO change the number of the servo to the right numbers
+    double right = 0.67;
+    double left = 0.44;
+    double halfwayOpenBox = 0.56;
+    double openBox = 0.22;
 
     public void init(HardwareMap ahwMap) {
         /* Save reference to Hardware map */

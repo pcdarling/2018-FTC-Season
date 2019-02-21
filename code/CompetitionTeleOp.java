@@ -16,8 +16,7 @@ public class CompetitionTeleOp extends OpMode{
 
     @Override
     public void init_loop() {
-        telemetry.addData("Lift Pos:",robot.theEvan.getCurrentPosition());
-        telemetry.update();
+
     }
 
     @Override
@@ -37,13 +36,11 @@ public class CompetitionTeleOp extends OpMode{
         if (robot.targetSeen){
             telemetry.addData("Which Target? ", robot.location);
         }*/
-        telemetry.addData("Lift Pos: ", robot.theEvan.getCurrentPosition());
-        telemetry.update();
     }
 
     @Override
     public void stop(){
-        robot.resetLoc();
+        robot.cam.resetLoc();
     }
 
     public void checkDriverControls(){
@@ -51,6 +48,8 @@ public class CompetitionTeleOp extends OpMode{
         double Ry = gamepad1.right_stick_y;
         double Ly = gamepad1.left_stick_y;
         boolean rb = gamepad1.right_bumper;
+        boolean buttonB = gamepad1.b;
+        boolean buttonX = gamepad1.x;
 
         // Drivetrain Controls
         if (gamepad1.dpad_left){
@@ -62,10 +61,10 @@ public class CompetitionTeleOp extends OpMode{
             }
         }
         if (tankControls) {
-            robot.tankcontrolsMovent(Ry, Ly, rb);
+            robot.drivetrain.tankcontrolsMovent(Ry, Ly, rb);
 
         } else {
-            robot.FPSmovementByControl(Rx, Ly, rb);
+            robot.drivetrain.FPSmovementByControl(Rx, Ly, rb);
         }
 
 
@@ -78,23 +77,33 @@ public class CompetitionTeleOp extends OpMode{
         }
 
         if (gamepad1.left_trigger > rtTresh) {
-            robot.theEvan.setPower(evanPower);
+            robot.evan.bicep.setPower(evanPower);
         } else if (gamepad1.right_trigger > rtTresh) {
-            robot.theEvan.setPower(-evanPower);
+            robot.evan.bicep.setPower(-evanPower);
         } else {
-            robot.theEvan.setPower(0);
+            robot.evan.bicep.setPower(0);
+        }
+
+        if (buttonB) {
+            robot.evan.latch(false);
+        }
+        if  (buttonX) {
+            robot.evan.latch(false);
         }
 
     }
 
     public void checkOperatorControls(){
         // gamepad2.x, gamepad2.y, gamepad2.b, and gamepad2.a are being used for larry deplore and the servo on the intake system
-
         double thresh = 0.06;
         double ly = gamepad2.left_stick_y;
         double ry = gamepad2.right_stick_y;
         boolean leftBumper = gamepad2.left_bumper;
         boolean rBumper = gamepad2.right_bumper;
+        boolean xButton = gamepad2.x;
+        boolean yButton = gamepad2.y;
+        boolean bButton = gamepad2.b;
+        boolean aButton = gamepad2.a;
 
 
 
@@ -122,22 +131,26 @@ public class CompetitionTeleOp extends OpMode{
             robot.intake.moveIntake(0,false,false);
         }
         //servo on the intake
-        if(gamepad2.x){
-            robot.intake.ITServo.setPosition(robot.intake.openBox);
+        if(xButton){
+            robot.intake.ITServo.setPosition(robot.intake.right);
         }
-        if(gamepad2.b){
-            robot.intake.ITServo.setPosition(robot.intake.closeBox);
+        if(bButton){
+            robot.intake.ITServo.setPosition(robot.intake.left);
         }
-        if(gamepad2.y){
+        if(yButton && bButton){
             robot.intake.ITServo.setPosition(robot.intake.halfwayOpenBox);
         }
+        if(aButton && xButton){
+            robot.intake.ITServo.setPosition(robot.intake.openBox);
+        }
         //servo to deploy larry
+        /*
         if (gamepad2.y){
-            robot.markerMover.setPosition(robot.storePos);
+            robot.misc.markerMover.setPosition(robot.misc.storePos);
         }
         if (gamepad2.a){
-            robot.markerMover.setPosition(robot.ejectPos);
-        }
+            robot.misc.markerMover.setPosition(robot.misc.ejectPos);
+        }*/
         /*if (gamepad2.dpad_down && !robot.mt.isAlive()){
             robot.createMarkerThread();
             robot.mt.start();
@@ -146,7 +159,7 @@ public class CompetitionTeleOp extends OpMode{
 
     public void checkVuforiaControls(){
         if (gamepad1.a){
-            robot.resetLoc();
+            robot.cam.resetLoc();
         }
     }
 }
