@@ -91,11 +91,11 @@ public class VuforiaHardware {
         targetSeen = false;
         location = -1;
     }
-    public class SampleThread extends Thread{
+     public class SampleThread extends Thread{
         public void run(){
-            findGoldPos();
+            findOnlyGold();
         }
-        public void findGoldPos(){
+        public void findOnlyGold(){
             if (tfod != null) {
                 tfod.activate();
             }
@@ -105,10 +105,8 @@ public class VuforiaHardware {
                     // the last time that call was made.
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
-                        if (updatedRecognitions.size() == 3) {
+                        if (updatedRecognitions.size() > 0) {
                             int goldMineralX = -1;
-                            int silverMineral1X = -1;
-                            int silverMineral2X = -1;
                             for (Recognition recognition : updatedRecognitions) {
                                 if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                                     goldMineralX = (int) recognition.getLeft();
@@ -117,8 +115,10 @@ public class VuforiaHardware {
                                     imageHeight = recognition.getImageHeight();
                                     if (goldWidth < 250 && goldTop < imageHeight / 2.0) {
                                         goldPos = (int) ((double) recognition.getLeft() + (double) recognition.getRight()) / 2;
+                                    }else{
+                                        goldPos = (int) ((double) recognition.getLeft() + (double) recognition.getRight()) / 2;
                                     }
-                                    double goldAngle = (recognition.estimateAngleToObject(AngleUnit.RADIANS)) * 180 / Math.PI; // Brandon personally made this variable in case of some future reference
+
                                 }
                                 if (goldPos != -1) {
                                     if (goldPos < 500) {
@@ -127,20 +127,20 @@ public class VuforiaHardware {
                                         centerCount++;
                                     }
                                 } else {
-                                    counter++;
+                                    rightCount++;
                                     if (counter > 10) {
-                                        rightCount++;
+                                        counter++;
                                     }
                                 }
                             }
                         }
                     }
                 }
-                if (leftCount > rightCount && leftCount > centerCount){ // left wins
+                if (leftCount > rightCount && leftCount > centerCount) {
                     isLeft = true;
-                }else if (rightCount > leftCount && rightCount > centerCount){// right wins
+                } else if (rightCount > leftCount && rightCount > centerCount) {
                     isRight = true;
-                }else{// center wins
+                } else {
                     isCenter = true;
                 }
             }
@@ -234,54 +234,53 @@ public class VuforiaHardware {
             }
         }
     }
-    public void findGoldPos(){
-        if (tfod != null) {
-            tfod.activate();
-        }
-        while (leftCount + rightCount + centerCount <= 10) {
-            if (tfod != null) {
-                // getUpdatedRecognitions() will return null if no new information is available since
-                // the last time that call was made.
-                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                if (updatedRecognitions != null) {
-                    if (updatedRecognitions.size() == 3) {
-                        int goldMineralX = -1;
-                        int silverMineral1X = -1;
-                        int silverMineral2X = -1;
-                        for (Recognition recognition : updatedRecognitions) {
-                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                goldMineralX = (int) recognition.getLeft();
-                                goldWidth = recognition.getRight() - recognition.getLeft();
-                                goldTop = recognition.getTop();
-                                imageHeight = recognition.getImageHeight();
-                                if (goldWidth < 250 && goldTop < imageHeight / 2.0) {
-                                    goldPos = (int) ((double) recognition.getLeft() + (double) recognition.getRight()) / 2;
+    public void findOnlyGold(){ if (tfod != null) {
+                tfod.activate();
+            }
+            while (leftCount + rightCount + centerCount <= 10) {
+                if (tfod != null) {
+                    // getUpdatedRecognitions() will return null if no new information is available since
+                    // the last time that call was made.
+                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                    if (updatedRecognitions != null) {
+                        if (updatedRecognitions.size() > 0) {
+                            int goldMineralX = -1;
+                            for (Recognition recognition : updatedRecognitions) {
+                                if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                                    goldMineralX = (int) recognition.getLeft();
+                                    goldWidth = recognition.getRight() - recognition.getLeft();
+                                    goldTop = recognition.getTop();
+                                    imageHeight = recognition.getImageHeight();
+                                    if (goldWidth < 250 && goldTop < imageHeight / 2.0) {
+                                        goldPos = (int) ((double) recognition.getLeft() + (double) recognition.getRight()) / 2;
+                                    }else{
+                                        goldPos = (int) ((double) recognition.getLeft() + (double) recognition.getRight()) / 2;
+                                    }
+
                                 }
-                                double goldAngle = (recognition.estimateAngleToObject(AngleUnit.RADIANS)) * 180 / Math.PI; // Brandon personally made this variable in case of some future reference
-                            }
-                            if (goldPos != -1) {
-                                if (goldPos < 500) {
-                                    leftCount++;
+                                if (goldPos != -1) {
+                                    if (goldPos < 500) {
+                                        leftCount++;
+                                    } else {
+                                        centerCount++;
+                                    }
                                 } else {
-                                    centerCount++;
-                                }
-                            } else {
-                                counter++;
-                                if (counter > 10) {
                                     rightCount++;
+                                    if (counter > 10) {
+                                        counter++;
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                if (leftCount > rightCount && leftCount > centerCount) {
+                    isLeft = true;
+                } else if (rightCount > leftCount && rightCount > centerCount) {
+                    isRight = true;
+                } else {
+                    isCenter = true;
+                }
             }
-            if (leftCount > rightCount && leftCount > centerCount){ // left wins
-                isLeft = true;
-            }else if (rightCount > leftCount && rightCount > centerCount){// right wins
-                isRight = true;
-            }else{// center wins
-                isCenter = true;
-            }
-        }
-    }
+       }
 }
